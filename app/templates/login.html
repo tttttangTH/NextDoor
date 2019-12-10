@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% import 'bootstrap/wtf.html' as wtf %}
+{% block title %}Login{% endblock %}
+{% block content %}
+
+
+    <div class="container" id="main-section">
+    <div class="panel panel-default login-signup">
+      <div class="panel-heading">
+        <h1 class="panel-title">login</h1>
+      </div><!-- /.panel-heading -->
+      <div class="panel-body">
+    <form action="" method="post">
+        #用来实现在配置中激活的csrf保护
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+{#        <p>#}
+{#            {{ form.username.label }}<br>#}
+{#            {{ form.username(size=32) }}#}
+{#            {% for error in form.username.errors %}#}
+{#                <span style="color: red;">[{{ error }}]</span>#}
+{#            {% endfor %}#}
+{#        </p>#}
+{#        <p>#}
+{#            {{ form.password.label }}<br>#}
+{#            {{ form.password(size=32) }}#}
+{#            {% for error in form.password.errors %}#}
+{#                <span style="color: red;">[{{ error }}]</span>#}
+{#            {% endfor %}#}
+{#        </p>#}
+{#        <p>{{ form.remember_me() }} {{ form.remember_me.label }}</p>#}
+{#        <p>{{ form.submit() }}</p>#}
+    {{ wtf.quick_form(form) }}
+
+    </form>
+           <p>Don't have an account? <a href="{{ url_for('register') }}">Click here!</a></p>
+    </div><!-- /.panel-body-->
+    </div><!-- /.panel -->
+  </div><!-- /.container -->
+
+{% endblock %}

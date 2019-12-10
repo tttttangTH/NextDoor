@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block content %}
+ <div class="jumbotron top-header" id="user-info" data-userid="{{ user.id }}">
+    <div class="container">
+      <div class="row">
+      <table>
+        <tr valign="top">
+            <td><img src="{{ user.avatar(128) }}"></td>
+            <td>
+                <h1>User: {{ user.username }}</h1>
+                {% if user.about_me %}<p>{{ user.about_me }}</p>{% endif %}
+                {% if user.last_seen %}<p>latest Login: {{ user.last_seen }}</p>{% endif %}
+            <p>{{ user.followers.count() }} followers, {{ user.followed.count() }} following.</p>
+             {% if user == current_user %}
+             <p><a href="{{ url_for('edit_profile') }}" >Edit your profile</a></p>
+                 {% elif not current_user.is_following(user) %}
+                 <p><a href="{{ url_for('follow', username=user.username) }}" class="button">Follow</a></p>
+        {% else %}
+         <p><a href="{{ url_for('unfollow', username=user.username) }}" class="button" > Unfollow</a></p>
+          {% endif %}
+
+          {% if current_user != user %}
+
+            {% if friends %}
+
+
+              <button class="btn btn-primary disabled" id="accepted-btn"><span class="fa fa-users" aria-hidden="true"></span> Friends</button>
+            {% elif pending_request %}
+              <button class="btn btn-primary disabled" id="requested-btn"><span class="fa fa-clock-o" aria-hidden="true"></span> Request Pending</button>
+            {% else %}
+{#              <form id="add-friend-form" action="/add-friend" method="post">#}
+{#                <button type="submit" class="btn btn-primary" id="add-friend-btn"><span class="fa fa-user-plus" aria-hidden="true"></span> Add Friend</button>#}
+{#              </form>#}
+                <p><a href="{{ url_for('add_friend', username=user.username) }}" class="button">Add Friend</a></p>
+            {% endif %}
+
+
+             {% endif %}
+
+            </td>
+        </tr>
+    </table>
+
+    <hr>
+    {% for post in posts %}
+     {% include '__post.html' %}
+    {% endfor %}
+
+    {% if prev_url %}
+    <a href="{{ prev_url }}">Newer posts</a>
+    {% endif %}
+    {% if next_url %}
+    <a href="{{ next_url }}">Older posts</a>
+    {% endif %}
+     </div><!-- /.row -->
+    </div><!-- /.container -->
+  </div><!-- /.jumbotron -->
+
+{% endblock %}
+{% block javascript %}
+{#  <script src="/static/js/add-friend.js"></script>#}
+{#{% include 'index.js' %}#}
+    <script>
+    function showSentRequest(result) {
+    $("#add-friend-btn").html(result).attr("disabled", true);
+}
+
+function sendFriendRequest(evt) {
+    evt.preventDefault();
+    var tmp = {{user.id}};
+    var formInput = {
+        // "user_b_id": $("#user-info").data("data-userid")
+        "user_b_id" : tmp
+    };
+
+    $.post("/add-friend",
+        formInput,
+        showSentRequest
+    );
+}
+
+$("#add-friend-form").on("submit", sendFriendRequest);
+    </script>
+
+{% endblock %}

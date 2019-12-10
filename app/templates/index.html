@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% block title %}Homepage{% endblock %}
+{% block content %}
+    <div class="jumbotron"  id="cover" style = "background-image: url({{ url_for('static', filename='img/silverware-on-table.jpg') }})">
+    <div class="container">
+         <h2>Hi, {{ current_user.username }} !</h2>
+        <p class="site-description indent">
+        Look for your neighbor.
+        <br>
+
+      </p>
+     {% if current_user.is_anonymous %}
+      <p class="indent">
+
+        <a class="btn btn-primary btn-lg btn-homepage btn-font" href="/signup" role="button"><span class="fa fa-user-plus" aria-hidden="true"></span> Sign up</a>
+        <a class="btn btn-primary btn-lg btn-homepage btn-font" href="/login" role="button"><span class="fa fa-sign-in" aria-hidden="true"></span> Login</a>
+
+      </p>
+         {% endif %}
+ </div><!-- /.container -->
+  </div><!-- /.jumbotron -->
+ <div class="container" id="features-section">
+     <div class="row">
+    {% if form %}
+        <form action="" method="post">
+            {{ form.hidden_tag() }}
+            <p>
+                {{ form.post.label }}<br>
+                {{ form.post(cols=32, rows=4) }}<br>
+                {% for error in form.post.errors %}
+                    <span style="color: red;">[{{ error }}]</span>
+                {% endfor %}
+            </p>
+            <p>{{ form.submit() }}</p>
+        </form>
+    {% endif %}
+    {% for post in posts %}
+
+        {% include '__post.html' %}
+
+    {% endfor %}
+    {% if prev_url %}
+        <a href="{{ prev_url }}">Newer posts</a>
+    {% endif %}
+    {% if next_url %}
+        <a href="{{ next_url }}">Older posts</a>
+    {% endif %}
+
+    </div><!-- /.row -->
+  </div><!-- /.container -->
+
+
+
+{% endblock %}
+
+
