@@ -18,8 +18,8 @@ Install the dependencies:
 Modify database config in config.py, your should create an empty database first and do the following each time you change the database in your code
 
 ```
-flask db migrate
-flask db upgrade
+$ flask db migrate
+$ flask db upgrade
 ```
 
 Finally, to run the app, start the server:
