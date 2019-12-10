@@ -54,7 +54,7 @@
             {% if friends %}
               {% for friend in friends %}
                 <div class="col-xs-6 col-sm-2" id="user-profile-pic-sm">
-                  <a href="users/{{ friend.id }}">
+                  <a href="user/{{ friend.username }}">
 {#                    {% if friend.user_id == 1 %}#}
 {#                      <img class="img-circle img-responsive" src="/static/img/profile-cartman.jpg">#}
 {#                    {% elif friend.user_id == 4 %}#}
@@ -85,7 +85,7 @@
             {% if received_friend_requests %}
               {% for received_friend_request in received_friend_requests %}
                 <div class="col-xs-6 col-sm-2" id="user-profile-pic-sm">
-                  <a href="users/{{ received_friend_request.id }}">
+                  <a href="user/{{ received_friend_request.username }}">
 {#                    {% if received_friend_request.user_id == 3 %}#}
 {#                      <img class="img-circle img-responsive" src="/static/img/profile-stan-marsh.jpg">#}
 {#                    {% else %}#}
@@ -115,7 +115,7 @@
             {% if sent_friend_requests %}
               {% for sent_friend_request in sent_friend_requests %}
                 <div class="col-xs-6 col-sm-2" id="user-profile-pic-sm">
-                  <a href="users/{{ sent_friend_request.id }}">
+                  <a href="user/{{ sent_friend_request.username }}">
 {#                   <img class="img-circle img-responsive" src="/static/img/profile-avatar.png">#}
                         <img class="img-circle img-responsive" src="{{ sent_friend_request.avatar(128) }}">
                     {{ sent_friend_request.username }}
