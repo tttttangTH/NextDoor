@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-
+{% import 'bootstrap/wtf.html' as wtf %}
 {% block content %}
 
     <div class="jumbotron top-header" id="user-info" data-userid="{{ user.id }}">
@@ -64,7 +64,23 @@
         </div><!-- /.container -->
 
     </div><!-- /.jumbotron -->
+    {% if posts %}
+        {% for post in posts %}
 
+            {% include '__post.html' %}
+
+        {% endfor %}
+    {% endif %}
+
+ {% if form %}
+    <form action="" method="post">
+
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+
+        {{ wtf.quick_form(form) }}
+
+    </form>
+    {% endif %}
 {% endblock %}
 {% block javascript %}
 

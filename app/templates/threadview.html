@@ -19,7 +19,7 @@
 
     {% endfor %}
     <div id="map"></div>>
-    <form action="/replymessage" method="post">
+    <form action="{{ url_for('replymessage', threadid = threadid) }}" method="post">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
         {#        <div class="form-group">#}
         {#            <label for="exampleFormControlInput1">Title</label>#}
@@ -43,9 +43,9 @@
         {#            </select>#}
         {#        </div>#}
         <label for="lat"></label>
-        <input name="lat" id="lat"  type="hidden">
+        <input name="lat" id="lat" type="hidden">
         <label for="lon"></label>
-        <input name="lon" id="lon"  type="hidden">
+        <input name="lon" id="lon" type="hidden">
 
         <div class="form-group">
             <label for="exampleFormControlTextarea1">Reply</label>
@@ -88,7 +88,7 @@
 
             }
             document.getElementById('lat').value = location.lat();
-                document.getElementById('lon').value = location.lng();
+            document.getElementById('lon').value = location.lng();
 
         }
 

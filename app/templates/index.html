@@ -26,10 +26,12 @@
     <div class="container" id="main-section">
         <div>
             <ul class="nav nav-tabs" role="tablist">
+                {% if current_user.hoodid %}
                 <li role="presentation" class="active">
                     <a href="#Hoods" id="hoods-tab" role="tab" data-toggle="tab" aria-controls="hoods"
                        aria-expanded="true">Hood Threads</a>
                 </li>
+                {% endif %}
                 {#                <li role="presentation" class="dropdown">#}
                 {#                    <a href="#" id="tab-drop" class="dropdown-toggle" data-toggle="dropdown"#}
                 {#                       aria-controls="tab-drop-contents" aria-expanded="false">#}
@@ -54,6 +56,7 @@
                 {#                        </li>#}
                 {#                    </ul>#}
                 {#                </li>#}
+             {% if current_user.blockid %}
                 <li role="presentation">
                     <a href="#Blocks" id="blocks-tab" role="tab"
                        data-toggle="tab" aria-controls="blocks" aria-expanded="false">
@@ -65,6 +68,7 @@
                     <a href="#Blocks-apply" id="block-apply-tab" role="tab" data-toggle="tab"
                        aria-controls="block-apply" aria-expanded="false">Blocks Apply</a>
                 </li>
+             {% endif %}
             </ul>
             <div class="tab-content">
 
@@ -82,10 +86,10 @@
 
                 <div role="tabpanel" class="tab-pane fade " id="Blocks" aria-labelledby="blocks-tab">
                 {% if blocks%}
-                    {% for hood in blocks %}
-                        <a href="{{ url_for('threadview',threadid = hood.id) }}">
+                    {% for block in blocks %}
+                        <a href="{{ url_for('threadview',threadid = block.id) }}">
                        <div class="row">
-                    {{ hood.title }}
+                    {{ block.title }}
                     </div>
                         </a>
                     {% endfor %}

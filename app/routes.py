@@ -25,36 +25,36 @@ def test():
 
 
 # 建立路由，通过路由可以执行其覆盖的方法，可以多个路由指向同一个方法。
-
+@app.route('/')
 @app.route('/', methods=['GET', 'POST'])
 @app.route('/index', methods=['GET', 'POST'])
 @login_required
 def index():
-    form = PostForm()
-    if form.validate_on_submit():
-        post = Post(body=form.post.data, author=current_user)
-        db.session.add(post)
-        db.session.commit()
-        flash('Your post is now live!')
-        return redirect(url_for('index'))
-    page = request.args.get('page', 1, type=int)
-    posts = current_user.followed_posts().paginate(
-        page, app.config['POSTS_PER_PAGE'], False)
+    # form = PostForm()
+    # if form.validate_on_submit():
+    #     post = Post(body=form.post.data, author=current_user)
+    #     db.session.add(post)
+    #     db.session.commit()
+    #     flash('Your post is now live!')
+    #     return redirect(url_for('index'))
+    # page = request.args.get('page', 1, type=int)
+    # posts = current_user.followed_posts().paginate(
+    #     page, app.config['POSTS_PER_PAGE'], False)
 
-    next_url = url_for('index', page=posts.next_num) \
-        if posts.has_next else None
-    prev_url = url_for('index', page=posts.prev_num) \
-        if posts.has_prev else None
+    # next_url = url_for('index', page=posts.next_num) \
+    #     if posts.has_next else None
+    # prev_url = url_for('index', page=posts.prev_num) \
+    #     if posts.has_prev else None
 
-    hoods = MThread.query.filter_by( hoodid=current_user.hoodid).all() if  current_user.hoodid else None
-    blocks = MThread.query.filter_by( blockid=current_user.blockid).all() if  current_user.blockid else None
+    hoods = MThread.query.filter_by(hoodid=current_user.hoodid).all() if current_user.hoodid else None
+    blocks = MThread.query.filter_by(blockid=current_user.blockid).all() if current_user.blockid else None
     # for hood in hoods:
     #     print(hood.head)
 
     # posts = current_user.followed_posts().all()
     # return render_template('index.html', title='tth', form=form, posts=posts.items,
     #                        next_url=next_url, prev_url=prev_url)
-    return render_template('index.html', hoods=hoods,blocks = blocks)
+    return render_template('index.html', hoods=hoods, blocks=blocks)
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -117,7 +117,7 @@ def user(username):
     if user.id != current_user.id and (current_user.is_following(user) or friends):
         form = PostForm()
         if form.validate_on_submit():
-            m = One2OneMessage(user_a_id=current_user.id, user_b_id=user.id, message=form.post.data)
+            m = One2OneMessage(user_a_id=current_user.id, user_b_id=user.id, body=form.post.data)
             db.session.add(m)
             db.session.commit()
 
@@ -128,12 +128,12 @@ def user(username):
     reveive_friends = db.session.query(One2OneMessage).filter(One2OneMessage.user_a_id == user.id,
                                                               One2OneMessage.user_b_id == current_user.id)
     all_message = to_friends.union(reveive_friends)
-    posts = all_message.order_by(One2OneMessage.sendtime.desc()).paginate(
-        page, app.config['POSTS_PER_PAGE'], False)
-    next_url = url_for('user', username=user.username, page=posts.next_num) \
-        if posts.has_next else None
-    prev_url = url_for('user', username=user.username, page=posts.prev_num) \
-        if posts.has_prev else None
+    # posts = all_message.order_by(One2OneMessage.sendtime.desc()).paginate(
+    #     page, app.config['POSTS_PER_PAGE'], False)
+    # next_url = url_for('user', username=user.username, page=posts.next_num) \
+    #     if posts.has_next else None
+    # prev_url = url_for('user', username=user.username, page=posts.prev_num) \
+    #     if posts.has_prev else None
 
     total_friends = len(get_friends(user.id).all())
 
@@ -141,8 +141,8 @@ def user(username):
     user_a_id = current_user.id
     user_b_id = user.id
 
-    return render_template('user.html', form=form, user=user, posts=posts.items,
-                           next_url=next_url, prev_url=prev_url,
+    return render_template('user.html', form=form, user=user, posts=all_message,
+                           # posts=posts.items, # next_url=next_url, prev_url=prev_url,
                            total_friends=total_friends,
                            friends=friends,
                            pending_request=pending_request
@@ -516,30 +516,35 @@ def NewPost():
 @app.route('/threadview/<threadid>')
 @login_required
 def threadview(threadid):
-    Message = Threadmessage.query.filter_by(id=threadid).order_by(Threadmessage.sendtime).all()
-    print(Message)
-    return render_template('threadview.html',messages = Message)
+    Message = Threadmessage.query.filter_by(threadid=threadid).order_by(Threadmessage.sendtime).all()
+    print(threadid)
+    for i in Message:
+        print(i.body)
+    return render_template('threadview.html', messages=Message, threadid=threadid)
 
 
-@app.route('/replymessage', methods=['POST'])
+@app.route('/replymessage/<threadid>', methods=['POST'])
 @login_required
-def replymessage():
-    title = request.form.get("title")
-    type = request.form.get("type")
+def replymessage(threadid):
+
+
     body = request.form.get("body")
+    print(request.form.get("lat"))
+    print(request.form.get("lon"))
+    lat = float(request.form.get("lat")) if request.form.get("lat") else None
+    lon = float(request.form.get("lon")) if request.form.get("lon") else None
+
+
     # if (type == "Hood")
     # print(type)
     blockid = None
     hoodid = None
-    print(title, type, body)
-    if type == "Block":
-        blockid = current_user.blockid
-    else:
-        hoodid = current_user.hoodid
-    thread = MThread(hoodid=hoodid, blockid=blockid, title=title, creator=current_user.id)
-    db.session.add(thread)
-    db.session.commit()
-    message = Threadmessage(threadid=thread.id, sender=current_user.id, body=body)
+
+    # thread = MThread(hoodid=hoodid, blockid=blockid, title=title, creator=current_user.id)
+    # db.session.add(thread)
+    # db.session.commit()
+    message = Threadmessage(threadid=threadid, sender=current_user.id, body=body, x=lat, y=lon)
+    print(threadid)
     db.session.add(message)
     db.session.commit()
-    return redirect(url_for('index'))
+    return redirect(url_for('threadview',threadid = threadid))
