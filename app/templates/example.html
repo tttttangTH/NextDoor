@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="MapContainer"> <div id="map" ></div></div>
+<form action="/submitcor" method="POST">
+				<label for="category">Category</label>
+				<select name="category" id="category">
+					<option value="mugging">Mugging</option>
+					<option value="breakin">Break-in</option>
+				</select>
+
+				<label for="latitude">Latitude</label>
+				<input name="latitude" id="latitude" type="text">
+				<label for="longitude">Longitude</label>
+				<input name="longitude" id="longitude" type="text">
+				<label for="description">Description</label>
+				<textarea name="description" id="description"
+					placeholder="A brief but detailed description of the crime">
+				</textarea>
+				<input type="submit" value="Submit">
+    </form>
+
+{% endblock %}
+
+{% block javascript %}
+
+    <script>
+        {#var map;#}
+        {#var marker;#}
+        {#	function initialize() {#}
+        {##}
+        {#		map = new google.maps.Map(document.getElementById("map"),#}
+        {#				{#}
+        {#         center: {lat: -34.397, lng: 150.644},#}
+        {#         zoom: 8,#}
+        {#     });#}
+        {##}
+        {##}
+        {#	}#}
+        {##}
+        {# initialize();#}
+        var map;
+        var marker;
+        var cen  = {lat: 40.630243328181834, lng: -73.9698145822461};
+        function initMap() {
+            map = new google.maps.Map(document.getElementById('map'), {
+                center: cen,
+                zoom: 13,
+            });
+            google.maps.event.addListener(map, 'click',
+				function(event){
+					placeMarker(event.latLng);
+				});
+            placeCrimes({{crimes | safe}});
+        }
+
+
+        // to remove the marker, call setMap(null);
+        {#marker.setMap(null);#}
+
+        function placeMarker(location) {
+            if (marker) {
+                marker.setPosition(location);
+            } else {
+                marker = new google.maps.Marker({
+                    position: location,
+                    map: map
+                });
+            }
+            document.getElementById('latitude').value = location.lat();
+            document.getElementById('longitude').value = location.lng();
+        }
+        function placeCrimes(crimes) {
+
+            var rectangle = new google.maps.Rectangle({
+                strokeColor: '#FF0000',
+                strokeOpacity: 0.8,
+                strokeWeight: 2,
+                fillColor: '#FF0000',
+                fillOpacity: 0.35,
+                map: map,
+                bounds: {
+                    north: 40.6302,
+                    south: 40.6402,
+                    east: -73.958,
+                    west: -73.968
+                }
+
+            });
+        }
+
+
+        initMap();
+
+    </script>north
+{% endblock %}

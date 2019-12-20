@@ -5,4 +5,4 @@ class Config(object):
 
     POSTS_PER_PAGE = 5
 
-
+    GOOGLEMAPS_KEY = "AIzaSyAbvrtRzqvRJVgZfrUzb1HoFmaDqtRqH-Q"

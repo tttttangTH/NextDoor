@@ -1,55 +1,118 @@
 {% extends 'base.html' %}
 {% block title %}Homepage{% endblock %}
 {% block content %}
-    <div class="jumbotron"  id="cover" style = "background-image: url({{ url_for('static', filename='img/silverware-on-table.jpg') }})">
-    <div class="container">
-         <h2>Hi, {{ current_user.username }} !</h2>
-        <p class="site-description indent">
-        Look for your neighbor.
-        <br>
+    <div class="jumbotron" id="cover"
+         style="background-image: url({{ url_for('static', filename='img/silverware-on-table.jpg') }})">
+        <div class="container">
+            <h2>Hi, {{ current_user.username }} !</h2>
+            <p class="site-description indent">
+                Look for your neighbor.
+                <br>
 
-      </p>
-     {% if current_user.is_anonymous %}
-      <p class="indent">
-
-        <a class="btn btn-primary btn-lg btn-homepage btn-font" href="/signup" role="button"><span class="fa fa-user-plus" aria-hidden="true"></span> Sign up</a>
-        <a class="btn btn-primary btn-lg btn-homepage btn-font" href="/login" role="button"><span class="fa fa-sign-in" aria-hidden="true"></span> Login</a>
-
-      </p>
-         {% endif %}
- </div><!-- /.container -->
-  </div><!-- /.jumbotron -->
- <div class="container" id="features-section">
-     <div class="row">
-    {% if form %}
-        <form action="" method="post">
-            {{ form.hidden_tag() }}
-            <p>
-                {{ form.post.label }}<br>
-                {{ form.post(cols=32, rows=4) }}<br>
-                {% for error in form.post.errors %}
-                    <span style="color: red;">[{{ error }}]</span>
-                {% endfor %}
             </p>
-            <p>{{ form.submit() }}</p>
-        </form>
-    {% endif %}
-    {% for post in posts %}
+            {% if current_user.is_anonymous %}
+                <p class="indent">
 
-        {% include '__post.html' %}
+                    <a class="btn btn-primary btn-lg btn-homepage btn-font" href="/signup" role="button"><span
+                            class="fa fa-user-plus" aria-hidden="true"></span> Sign up</a>
+                    <a class="btn btn-primary btn-lg btn-homepage btn-font" href="/login" role="button"><span
+                            class="fa fa-sign-in" aria-hidden="true"></span> Login</a>
 
-    {% endfor %}
-    {% if prev_url %}
-        <a href="{{ prev_url }}">Newer posts</a>
-    {% endif %}
-    {% if next_url %}
-        <a href="{{ next_url }}">Older posts</a>
-    {% endif %}
+                </p>
+            {% endif %}
+        </div><!-- /.container -->
+    </div><!-- /.jumbotron -->
+    <div class="container" id="features-section">
+    <div class="col">
+        <div id="map">
 
-    </div><!-- /.row -->
-  </div><!-- /.container -->
+        </div>
+        <div class="col">
+            {% if form %}
+                <form action="/addthread" method="post">
+                    {{ form.hidden_tag() }}
+                    <div class="form-group">
+                        <label for="exampleFormControlInput1">Title</label>
+                        <input name="title" type="title" class="form-control" id="exampleFormControlInput1"
+                               placeholder="your title">
+                    </div>
+                    {#  <div class="form-group">#}
+                    {#    <label for="exampleFormControlSelect1">Type</label>#}
+                    {#    <select class="form-control" id="exampleFormControlSelect1">#}
+                    {#      <option>Hood</option>#}
+                    {#      <option>Block</option>#}
+                    {#      #}
+                    {#    </select>#}
+                    {#  </div>#}
+                    <div class="form-group">
+                        <label for="exampleFormControlSelect1">Type</label>
+                        <select name="type" class="form-control" id="exampleFormControlSelect1">
+                            <option>Block</option>
+                            <option>Hood</option>
+
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="exampleFormControlTextarea1">Description</label>
+                        <textarea name="body" class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Summit</button>
+                </form>
+                {#        <form action="" method="post">#}
+                {#            {{ form.hidden_tag() }}#}
+                {#            <p>#}
+                {#                {{ form.post.label }}<br>#}
+                {#                {{ form.post(cols=32, rows=4) }}<br>#}
+                {#                {% for error in form.post.errors %}#}
+                {#                    <span style="color: red;">[{{ error }}]</span>#}
+                {#                {% endfor %}#}
+                {#            </p>#}
+                {#            <p>{{ form.submit() }}</p>#}
+                {#        </form>#}
+                </div>
+            {% endif %}
+        {% for post in posts %}
+
+            {#        {% include '__post.html' %}#}
+
+        {% endfor %}
+        {% if prev_url %}
+            <a href="{{ prev_url }}">Newer posts</a>
+        {% endif %}
+        {% if next_url %}
+            <a href="{{ next_url }}">Older posts</a>
+        {% endif %}
 
 
+    </div><!-- /.container -->
+
+
+
+{% endblock %}
+
+{% block javascript %}
+    <script>
+        var map;
+        var marker;
+        var cen = {lat: 40.630243328181834, lng: -73.9698145822461};
+
+        function initMap() {
+            map = new google.maps.Map(document.getElementById('map'), {
+                center: cen,
+                zoom: 13,
+            });
+            google.maps.event.addListener(map, 'click',
+                function (event) {
+                    placeMarker(event.latLng);
+                });
+            placeHoods({{ blocks | safe}});
+
+        }
+
+        initMap();
+
+    </script>
 
 {% endblock %}
 

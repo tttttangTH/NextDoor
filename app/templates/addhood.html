@@ -1,0 +1,150 @@
+{% extends 'base.html' %}
+{% block content %}
+    <div class="MapContainer">
+        <div id="map"></div>
+    </div>
+    <form action="/submithood" method="POST">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+        {#				<label for="category">Category</label>#}
+        {#				<select name="category" id="category">#}
+        {#					<option value="mugging">Mugging</option>#}
+        {#					<option value="breakin">Break-in</option>#}
+        {#				</select>#}
+
+        <label for="north">north</label>
+        <input name="north" id="north" type="text">
+        <label for="south">south</label>
+        <input name="south" id="south" type="text">
+
+
+        <label for="east">east</label>
+        <input name="east" id="east" type="text">
+        <label for="west">west</label>
+        <input name="west" id="west" type="text">
+
+
+        <label for="description">Description</label>
+        <textarea name="description" id="description"
+                  placeholder="A brief ">
+				</textarea>
+        <input type="submit" value="Submit">
+    </form>
+
+
+{% endblock %}
+
+{% block javascript %}
+
+    <script>
+        {#var map;#}
+        {#var marker;#}
+        {#	function initialize() {#}
+        {##}
+        {#		map = new google.maps.Map(document.getElementById("map"),#}
+        {#				{#}
+        {#         center: {lat: -34.397, lng: 150.644},#}
+        {#         zoom: 8,#}
+        {#     });#}
+        {##}
+        {##}
+        {#	}#}
+        {##}
+        {# initialize();#}
+        var map;
+        var marker;
+        var cen = {lat: 40.630243328181834, lng: -73.9698145822461};
+
+        function initMap() {
+            map = new google.maps.Map(document.getElementById('map'), {
+                center: cen,
+                zoom: 13,
+            });
+            google.maps.event.addListener(map, 'click',
+                function (event) {
+                    placeMarker(event.latLng);
+                });
+            placeHoods({{hoods | safe}});
+
+        }
+
+
+        // to remove the marker, call setMap(null);
+        {#marker.setMap(null);#}
+
+        function placeMarker(location) {
+            if (marker) {
+                marker.setPosition(location);
+                document.getElementById('south').value = location.lat();
+                document.getElementById('east').value = location.lng();
+
+            } else {
+                marker = new google.maps.Marker({
+                    position: location,
+                    map: map
+                });
+                document.getElementById('north').value = location.lat();
+                document.getElementById('west').value = location.lng();
+
+            }
+
+        }
+
+        function placeHoods(hoods) {
+
+            console.info(hoods.wests);
+            for (i = 0; i < hoods.length; i++) {
+                rectangle = new google.maps.Rectangle({
+
+                    strokeColor: '#FF0000',
+                    strokeOpacity: 0.8,
+                    strokeWeight: 2,
+                    fillColor: '#FF0000',
+                    fillOpacity: 0.35,
+                    map: map,
+                    bounds: {
+                        north: hoods[i].north,
+                        south: hoods[i].south,
+                        east: hoods[i].east,
+                        west: hoods[i].west
+                    },
+                    name: hoods[i].name
+
+                });
+                google.maps.event.addListener(rectangle, 'click',
+                    function (event) {
+
+                        {#placeMarker(event.latLng);#}
+                        var display = "Join " + this.name + " ?";
+                        var hoodname = this.name;
+                        $.get("{{ url_for('updatehood') }}", {name: hoodname});
+                        if (window.confirm(display)) {
+                            {#window.location.href="{{ url_for('updatehood', hoodname = hoodname) }}";#}
+                            {#                        window.location.href="/updatehood?hoodname="+hoodname;#}
+                            $.get("{{ url_for('updatehood') }}", {name: hoodname});
+                            window.location.href = "{{ url_for('index') }}";
+                            {#$.ajax({#}
+                            {##}
+                            {#    type: 'POST',#}
+                            {#    url: "{{url_for('updatehood')}}",#}
+                            {#data: {'data': hoodname},#}
+                            {#    data: ({'item': "???"}),#}
+                            {#    success: function (msg) {#}
+                            {#        console.info("???");#}
+                            {#        window.location.href = "{{url_for('index')}}";#}
+                            {##}
+                            {#    }#}
+                            {#                       #}
+                            {#     });#}
+                        } else {
+
+                        }
+
+                    });
+            }
+        }
+
+
+        initMap();
+
+    </script>north
+{% endblock %}

@@ -29,6 +29,7 @@ class User(UserMixin, db.Model):
     password_hash = db.Column(db.String(128))
     about_me = db.Column(db.String(140))
     last_seen = db.Column(db.DateTime, default=datetime.utcnow)
+    hoodid = db.Column(db.Integer)
 
     followed = db.relationship(
         'User', secondary=followers,
@@ -91,6 +92,7 @@ class User(UserMixin, db.Model):
     # back是反向引用,User和Post是一对多的关系，backref是表示在Post中新建一个属性author，关联的是Post中的user_id外键关联的User对象。
     # lazy属性常用的值的含义，select就是访问到属性的时候，就会全部加载该属性的数据;joined则是在对关联的两个表进行join操作，从而获取到所有相关的对象;dynamic则不一样，在访问属性的时候，并没有在内存中加载数据，而是返回一个query对象, 需要执行相应方法才可以获取对象，比如.all()
     posts = db.relationship('Post', backref='author', lazy='dynamic')
+    message = db.relationship('One2OneMessage', backref='author', lazy='dynamic')
 
     def __repr__(self):
         return '<???:{}>'.format(self.username)
@@ -130,6 +132,119 @@ class Connection(db.Model):
                                                                                       self.user_b_id,
 
                                                                                       self.status)
+
+
+class One2OneMessage(db.Model):
+    """Connection between two users to establish a friendship and can see each other's info."""
+
+    __tablename__ = "One2OneMessage"
+    id = db.Column(db.Integer, autoincrement=True, primary_key=True)
+    user_a_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    user_b_id = db.Column(db.Integer, nullable=False)
+    sendtime = db.Column(db.DateTime, default=datetime.utcnow)
+    body = db.Column(db.String(100), nullable=False)
+
+    def __repr__(self):
+        """Provide helpful representation when printed."""
+
+        return "???"
+
+
+class One2Onerecord(db.Model):
+    """Connection between two users to establish a friendship and can see each other's info."""
+
+    __tablename__ = "One2Onerecord"
+    id = db.Column(db.Integer, autoincrement=True, primary_key=True)
+    user_a_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    user_b_id = db.Column(db.Integer, nullable=False)
+    lsatseen = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def __repr__(self):
+        """Provide helpful representation when printed."""
+
+        return "???"
+
+
+class Thread(db.Model):
+    """Connection between two users to establish a friendship and can see each other's info."""
+
+    __tablename__ = "thread"
+    id = db.Column(db.Integer, autoincrement=True, primary_key=True)
+    hoodid = db.Column(db.Integer)
+    blockid = db.Column(db.Integer)
+    title = db.Column(db.String(64))
+
+    creator = db.Column(db.Integer, db.ForeignKey('user.id'))
+    sendtime = db.Column(db.DateTime, default=datetime.utcnow)
+    body = db.Column(db.String(100), nullable=False)
+
+    def __repr__(self):
+        """Provide helpful representation when printed."""
+
+        return "???"
+
+
+class Threadmessage(db.Model):
+    """Connection between two users to establish a friendship and can see each other's info."""
+
+    __tablename__ = "threadmessage"
+    id = db.Column(db.Integer, autoincrement=True, primary_key=True)
+    threadid = db.Column(db.Integer, db.ForeignKey('thread.id'), nullable=False)
+    sender = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    x = db.Column(db.Float)
+    y = db.Column(db.Float)
+    body = db.Column(db.String(100), nullable=False)
+    sendtime = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def __repr__(self):
+        """Provide helpful representation when printed."""
+
+        return "???"
+
+
+class Hoods(db.Model):
+    """Connection between two users to establish a friendship and can see each other's info."""
+
+    __tablename__ = "hoods"
+
+    connection_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
+    north = db.Column(db.Float, nullable=False)
+    south = db.Column(db.Float, nullable=False)
+    east = db.Column(db.Float, nullable=False)
+    west = db.Column(db.Float, nullable=False)
+
+    hoodname = db.Column(db.String(64), index=True, unique=True)
+
+    def __repr__(self):
+        """Provide helpful representation when printed."""
+
+        return "???"
+
+    def to_dict(self, ):
+        return {"north": self.north, "south": self.south, "east": self.east, "west": self.west, "name": self.hoodname}
+
+
+class Blocks(db.Model):
+    """Connection between two users to establish a friendship and can see each other's info."""
+
+    __tablename__ = "blocks"
+
+    connection_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
+    hood_id = db.Column(db.Integer, db.ForeignKey('hoods.connection_id'), nullable=False)
+    north = db.Column(db.Float, nullable=False)
+    south = db.Column(db.Float, nullable=False)
+    east = db.Column(db.Float, nullable=False)
+    west = db.Column(db.Float, nullable=False)
+
+    blockname = db.Column(db.String(64), index=True, unique=True)
+
+    def __repr__(self):
+        """Provide helpful representation when printed."""
+
+        return "???"
+
+    def to_dict(self, ):
+        return {"north": self.north, "south": self.south, "east": self.east, "west": self.west, "name": self.blockname}
 
 
 def is_friends_or_pending(user_a_id, user_b_id):

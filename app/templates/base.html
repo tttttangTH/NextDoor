@@ -4,6 +4,9 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+
+
     {#  <link rel="icon" href="/static/img/restaurant-marker.png" type="image/gif" sizes="16x16">#}
     <title>Nextdoor || {% block title %} put title here {% endblock %}</title>
 
@@ -29,6 +32,7 @@
   <![endif]-->
 </head>
 <body>
+
 <nav class="navbar navbar-default navbar-fixed-top">
     <div class="container-fluid">
 
@@ -124,20 +128,22 @@
 
 <footer class="footer">
     <div class="container">
-        <p class="footer-copyright">NextDoor  &copy; 2018.</p>
+        <p class="footer-copyright">NextDoor &copy; 2019.</p>
         <!-- <p>Made with <span id="heart">&hearts;</span></p> -->
         <p class="footer-text">
-            <a href="https://github.com/ashleyhsia0/breadcrumbs">
+            <a href="https://github.com/tttttangTH/NextDoor">
                 <span class="fa fa-github fa-lg" aria-hidden="true"></span>
                 Github
             </a>
         </p>
     </div>
 </footer>
-
-{% block javascript %} put any scripts here {% endblock %}
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAbvrtRzqvRJVgZfrUzb1HoFmaDqtRqH-Q&callback=initMap" async
+        defer></script>
 <!-- Include all compiled plugins (below), or include individual files as needed -->
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+{% block javascript %} put any scripts here {% endblock %}
+
 </body>
 </html>

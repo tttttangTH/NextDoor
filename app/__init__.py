@@ -6,7 +6,9 @@ from flask_login import LoginManager
 from flask_bootstrap import Bootstrap
 from flask_wtf.csrf import CSRFProtect
 
+
 app = Flask(__name__)
+
 csrf = CSRFProtect()
 csrf.init_app(app)
 login = LoginManager(app)

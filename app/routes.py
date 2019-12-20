@@ -1,7 +1,8 @@
 from flask import render_template, flash, redirect, url_for
 from flask_login import current_user, login_user
 from app.forms import LoginForm, PostForm
-from app.models import User, Post, Connection, is_friends_or_pending, get_friends, get_friend_requests
+from app.models import User, Post, Connection, is_friends_or_pending, get_friends, get_friend_requests, Hoods, Blocks, \
+    One2OneMessage,Thread,Threadmessage
 from flask_login import logout_user
 from flask_login import login_required
 from flask import request
@@ -12,6 +13,9 @@ from datetime import datetime
 from app.forms import EditProfileForm
 from sqlalchemy_searchable import search
 from app import csrf
+import json
+
+
 # from app.friends import is_friends_or_pending, get_friend_requests, get_friends
 
 
@@ -98,12 +102,27 @@ def register():
     return render_template('register.html', title='register', form=form)
 
 
-@app.route('/user/<username>')
+@app.route('/user/<username>', methods=['GET', 'POST'])
 @login_required
 def user(username):
     user = User.query.filter_by(username=username).first_or_404()
+    form = None
+    friends, pending_request = is_friends_or_pending(current_user.id, user.id)
+    if user.id != current_user.id and (current_user.is_following(user) or friends):
+        form = PostForm()
+        if form.validate_on_submit():
+            m = One2OneMessage(user_a_id=current_user.id, user_b_id=user.id, message=form.post.data)
+            db.session.add(m)
+            db.session.commit()
+
+            return redirect(url_for('user', username=user.username))
     page = request.args.get('page', 1, type=int)
-    posts = user.posts.order_by(Post.timestamp.desc()).paginate(
+    to_friends = db.session.query(One2OneMessage).filter(One2OneMessage.user_a_id == current_user.id,
+                                                         One2OneMessage.user_b_id == user.id)
+    reveive_friends = db.session.query(One2OneMessage).filter(One2OneMessage.user_a_id == user.id,
+                                                              One2OneMessage.user_b_id == current_user.id)
+    all_message = to_friends.union(reveive_friends)
+    posts = all_message.order_by(One2OneMessage.sendtime.desc()).paginate(
         page, app.config['POSTS_PER_PAGE'], False)
     next_url = url_for('user', username=user.username, page=posts.next_num) \
         if posts.has_next else None
@@ -115,8 +134,8 @@ def user(username):
     # user_a_id = session["current_user"]["user_id"]
     user_a_id = current_user.id
     user_b_id = user.id
-    friends, pending_request = is_friends_or_pending(user_a_id, user_b_id)
-    return render_template('user.html', user=user, posts=posts.items,
+
+    return render_template('user.html', form=form, user=user, posts=posts.items,
                            next_url=next_url, prev_url=prev_url,
                            total_friends=total_friends,
                            friends=friends,
@@ -337,3 +356,137 @@ def search_users():
                            sent_friend_requests=sent_friend_requests,
                            friends=friends,
                            search_results=search_results)
+
+
+@app.route('/hood')
+# @login_required
+def hood():
+    crimes = {
+        "north": 33.685,
+        "south": 33.671,
+        "east": -116.234,
+        "west": -116.251
+    }
+    crimes = json.dumps(crimes)
+    # posts = Post.query.order_by(Post.timestamp.desc()).all()
+    return render_template('example.html', crimes=crimes)
+
+
+@app.route("/submitcor", methods=['POST'])
+def submitcor():
+    latitude = float(request.form.get("latitude"))
+    longitude = float(request.form.get("longitude"))
+
+    return hood()
+
+
+@app.route('/super')
+def addhood():
+    hoods = db.session.query(Hoods).all()
+    # print(type(crimesall) )
+    # crimes = {
+    #     "norths": 40.6302,
+    #     "souths":40.6402,
+    #     "easts": -73.958,
+    #     "wests":-73.968
+    # }
+    hoods = [item.to_dict() for item in hoods]
+    hoods = json.dumps(hoods)
+    # crimes = db.session.query(Hoods).all()
+    # crimes = json.dumps(crimes)
+    # posts = Post.query.order_by(Post.timestamp.desc()).all()
+    print(type(hoods))
+    return render_template('addhood.html', hoods=hoods)
+
+
+@app.route('/submithood', methods=['POST'])
+def submithood():
+    north = float(request.form.get("north"))
+    south = float(request.form.get("south"))
+    east = float(request.form.get("east"))
+    west = float(request.form.get("west"))
+    print(north)
+    hoodname = request.form.get("description")
+    hood = Hoods(north=north, south=south, west=west, east=east, hoodname=hoodname)
+    db.session.add(hood)
+    db.session.commit()
+    return redirect(url_for('addhood'))
+
+
+@csrf.exempt
+@app.route('/updatehood', methods=['GET'])
+@login_required
+def updatehood():
+    name = request.args.get('name')
+
+    hood = Hoods.query.filter_by(hoodname=name).first()
+    print(hood)
+    current_user.hoodid = hood.connection_id
+    db.session.commit()
+    # return redirect(url_for('index'))
+
+
+@app.route('/superblock')
+def addblock():
+    blocks = db.session.query(Blocks).filter(Blocks.hood_id == current_user.hoodid).all()
+    hoods = db.session.query(Hoods).all()
+    # print(type(crimesall) )
+    # crimes = {
+    #     "norths": 40.6302,
+    #     "souths":40.6402,
+    #     "easts": -73.958,
+    #     "wests":-73.968
+    # }
+    blocks = [item.to_dict() for item in blocks]
+    blocks = json.dumps(blocks)
+    # crimes = db.session.query(Hoods).all()
+    # crimes = json.dumps(crimes)
+    # posts = Post.query.order_by(Post.timestamp.desc()).all()
+    print(type(blocks))
+    return render_template('addblock.html', blocks=blocks, hoods=hoods)
+
+
+@app.route('/submitblock', methods=['POST'])
+def submitblock():
+    north = float(request.form.get("north"))
+    south = float(request.form.get("south"))
+    east = float(request.form.get("east"))
+    west = float(request.form.get("west"))
+    print(north)
+
+    hoodname = request.form.get("category")
+    print(hoodname)
+    hood = Hoods.query.filter_by(hoodname=hoodname ).first()
+    blockname = request.form.get("description")
+    block = Blocks(north=north, south=south, west=west, east=east, hood_id=hood.connection_id,blockname = blockname )
+    db.session.add(block)
+    db.session.commit()
+    return redirect(url_for('addblock'))
+
+
+@csrf.exempt
+@app.route('/updateblock', methods=['GET'])
+@login_required
+def updateblock():
+    name = request.args.get('name')
+
+    hood = Hoods.query.filter_by(hoodname=name).first()
+    print(hood)
+    current_user.hoodid = hood.connection_id
+    db.session.commit()
+    # return redirect(url_for('index'))
+
+@app.route('/addthread', methods=['POST'])
+@login_required
+def addthread():
+    title = request.form.get("title")
+    type = request.form.get("type")
+    body = request.form.get("body")
+    # if (type == "Hood")
+    # print(type)
+
+    hood = Hoods.query.filter_by(hoodname=name).first()
+    print(hood)
+    current_user.hoodid = hood.connection_id
+    db.session.commit()
+    # return redirect(url_for('index'))

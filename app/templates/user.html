@@ -13,7 +13,13 @@
                 {% if user.last_seen %}<p>latest Login: {{ user.last_seen }}</p>{% endif %}
             <p>{{ user.followers.count() }} followers, {{ user.followed.count() }} following.</p>
              {% if user == current_user %}
+                  <p><a href="{{ url_for('addhood') }}" class="button">Super</a></p>
              <p><a href="{{ url_for('edit_profile') }}" >Edit your profile</a></p>
+                  <p><a href="{{ url_for('addhood') }}" >Edit your Hood</a></p>
+                  {% if current_user.hoodid %}
+
+                      <p><a href="{{ url_for('addblock') }}" >Apply for your block</a></p>
+                      {% endif %}
                  {% elif not current_user.is_following(user) %}
                  <p><a href="{{ url_for('follow', username=user.username) }}" class="button">Follow</a></p>
         {% else %}
@@ -43,44 +49,41 @@
     </table>
 
     <hr>
-    {% for post in posts %}
-     {% include '__post.html' %}
-    {% endfor %}
 
+     </div><!-- /.row -->
+
+    </div><!-- /.container -->
+ <div class="row">
+    {% if form %}
+        <form action="" method="post">
+            {{ form.hidden_tag() }}
+            <p>
+                {{ form.post.label }}<br>
+                {{ form.post(cols=32, rows=4) }}<br>
+                {% for error in form.post.errors %}
+                    <span style="color: red;">[{{ error }}]</span>
+                {% endfor %}
+            </p>
+            <p>{{ form.submit() }}</p>
+        </form>
+    {% endif %}
+    {% for post in posts %}
+
+        {% include '__post.html' %}
+
+    {% endfor %}
     {% if prev_url %}
-    <a href="{{ prev_url }}">Newer posts</a>
+        <a href="{{ prev_url }}">Newer posts</a>
     {% endif %}
     {% if next_url %}
-    <a href="{{ next_url }}">Older posts</a>
+        <a href="{{ next_url }}">Older posts</a>
     {% endif %}
-     </div><!-- /.row -->
-    </div><!-- /.container -->
+
+    </div><!-- /.row -->
   </div><!-- /.jumbotron -->
 
 {% endblock %}
 {% block javascript %}
-{#  <script src="/static/js/add-friend.js"></script>#}
-{#{% include 'index.js' %}#}
-    <script>
-    function showSentRequest(result) {
-    $("#add-friend-btn").html(result).attr("disabled", true);
-}
 
-function sendFriendRequest(evt) {
-    evt.preventDefault();
-    var tmp = {{user.id}};
-    var formInput = {
-        // "user_b_id": $("#user-info").data("data-userid")
-        "user_b_id" : tmp
-    };
-
-    $.post("/add-friend",
-        formInput,
-        showSentRequest
-    );
-}
-
-$("#add-friend-form").on("submit", sendFriendRequest);
-    </script>
 
 {% endblock %}
