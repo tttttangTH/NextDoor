@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block title %}Thread{% endblock %}
+{% block content %}
+
+
+    {% for message in messages %}
+
+        <table>
+        <tr valign="top"><td>
+            <img src="{{ message.author.avatar(36) }}"></td>
+
+            <td><a href="{{ url_for('user', username=message.author.username) }}">
+                    {{ message.author.username }}
+                </a>
+Says:<br>{{ message.body}}</td>
+        </tr>
+    </table>
+
+                    {% endfor %}
+
+
+{% endblock %}

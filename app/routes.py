@@ -46,10 +46,16 @@ def index():
     prev_url = url_for('index', page=posts.prev_num) \
         if posts.has_prev else None
 
+    hoods = MThread.query.filter_by(hoodid=current_user.hoodid).all()
+    blocks = MThread.query.filter_by(blockid=current_user.blockid).all()
+    # for hood in hoods:
+    #     print(hood.head)
+
     # posts = current_user.followed_posts().all()
     # return render_template('index.html', title='tth', form=form, posts=posts.items,
     #                        next_url=next_url, prev_url=prev_url)
-    return render_template('index.html')
+    return render_template('index.html', hoods=hoods,blocks = blocks)
+
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -211,8 +217,8 @@ def explore():
         if posts.has_prev else None
 
     # posts = Post.query.order_by(Post.timestamp.desc()).all()
-    return render_template('index.html', title='Explore', posts=posts.items,
-                           next_url=next_url, prev_url=prev_url)
+    # return render_template('index.html', title='Explore', posts=posts.items,
+    #                        next_url=next_url, prev_url=prev_url)
 
 
 @app.route('/add_friend/<username>')
@@ -505,3 +511,11 @@ def addthread():
 @login_required
 def NewPost():
     return render_template('newpost.html')
+
+
+@app.route('/threadview/<threadid>')
+@login_required
+def threadview(threadid):
+    Message = Threadmessage.query.filter_by(id=threadid).order_by(Threadmessage.sendtime).all()
+    print(Message)
+    return render_template('threadview.html',messages = Message)

@@ -30,55 +30,62 @@
                     <a href="#Hoods" id="hoods-tab" role="tab" data-toggle="tab" aria-controls="hoods"
                        aria-expanded="true">Hood Threads</a>
                 </li>
-{#                <li role="presentation" class="dropdown">#}
-{#                    <a href="#" id="tab-drop" class="dropdown-toggle" data-toggle="dropdown"#}
-{#                       aria-controls="tab-drop-contents" aria-expanded="false">#}
-{#                        Blocks Threads#}
-{#                        <span class="badge">{{ current_user.num_request() }}</span>#}
-{#                        <span class="caret"></span>#}
-{#                    </a>#}
-{#                    <ul class="dropdown-menu" aria-labelledby="tab-drop" id="tab-drop-contents">#}
-{#                        <li>#}
-{#                            <a href="#Blocks" id="blocks-tab" role="tab"#}
-{#                               data-toggle="tab" aria-controls="blocks">#}
-{#                                Message#}
-{#                                <span class="badge">{{ current_user.num_receive_request() }}</span>#}
-{#                            </a>#}
-{#                        </li>#}
-{#                        <li>#}
-{#                            <a  href="#Blocks-apply" id="blocks-apply-tab" role="tab" data-toggle="tab"#}
-{#                               aria-controls="blocks-apply">#}
-{#                                block Appication#}
-{#                                <span class="badge">{{ current_user.num_sent_request() }}</span>#}
-{#                            </a>#}
-{#                        </li>#}
-{#                    </ul>#}
-{#                </li>#}
+                {#                <li role="presentation" class="dropdown">#}
+                {#                    <a href="#" id="tab-drop" class="dropdown-toggle" data-toggle="dropdown"#}
+                {#                       aria-controls="tab-drop-contents" aria-expanded="false">#}
+                {#                        Blocks Threads#}
+                {#                        <span class="badge">{{ current_user.num_request() }}</span>#}
+                {#                        <span class="caret"></span>#}
+                {#                    </a>#}
+                {#                    <ul class="dropdown-menu" aria-labelledby="tab-drop" id="tab-drop-contents">#}
+                {#                        <li>#}
+                {#                            <a href="#Blocks" id="blocks-tab" role="tab"#}
+                {#                               data-toggle="tab" aria-controls="blocks">#}
+                {#                                Message#}
+                {#                                <span class="badge">{{ current_user.num_receive_request() }}</span>#}
+                {#                            </a>#}
+                {#                        </li>#}
+                {#                        <li>#}
+                {#                            <a  href="#Blocks-apply" id="blocks-apply-tab" role="tab" data-toggle="tab"#}
+                {#                               aria-controls="blocks-apply">#}
+                {#                                block Appication#}
+                {#                                <span class="badge">{{ current_user.num_sent_request() }}</span>#}
+                {#                            </a>#}
+                {#                        </li>#}
+                {#                    </ul>#}
+                {#                </li>#}
                 <li role="presentation">
                     <a href="#Blocks" id="blocks-tab" role="tab"
-                               data-toggle="tab" aria-controls="blocks" aria-expanded="false">
-                                Blocks Threads</a>
-{#                    <a  href="#Blocks-apply" id="block-apply-tab" role="tab" data-toggle="tab"#}
-{#                       aria-controls="block-apply" aria-expanded="false">Blocks Apply</a>#}
+                       data-toggle="tab" aria-controls="blocks" aria-expanded="false">
+                        Blocks Threads</a>
+                    {#                    <a  href="#Blocks-apply" id="block-apply-tab" role="tab" data-toggle="tab"#}
+                    {#                       aria-controls="block-apply" aria-expanded="false">Blocks Apply</a>#}
                 </li>
                 <li role="presentation">
-                    <a  href="#Blocks-apply" id="block-apply-tab" role="tab" data-toggle="tab"
+                    <a href="#Blocks-apply" id="block-apply-tab" role="tab" data-toggle="tab"
                        aria-controls="block-apply" aria-expanded="false">Blocks Apply</a>
                 </li>
             </ul>
             <div class="tab-content">
 
                 <div role="tabpanel" class="tab-pane fade active in" id="Hoods" aria-labelledby="hoods-tab">
-                    <div class="row">
-
-                    </div>
+                    {% for hood in hoods %}
+                        <a href="{{ url_for('threadview',threadid = hood.id) }}">
+                        <span class="clickable"><div class="row">
+                    {{ hood.title }}
+                    </div></span>
+                        </a>
+                    {% endfor %}
                 </div>
 
                 <div role="tabpanel" class="tab-pane fade " id="Blocks" aria-labelledby="blocks-tab">
-                    <h2> ???</h2>
-                    <div class="row">
-
-                    </div>
+                    {% for hood in blocks %}
+                        <a href="{{ url_for('threadview',threadid = hood.id) }}">
+                        <span class="clickable"><div class="row">
+                    {{ hood.title }}
+                    </div></span>
+                        </a>
+                    {% endfor %}
                 </div>
 
                 <div role="tabpanel" class="tab-pane fade " id="Blocks-apply" aria-labelledby="blocks-apply-tab">
@@ -88,14 +95,14 @@
                     </div>
                 </div>
 
-{#                <div role="tabpanel" class="tab-pane fade " id="New Thread" aria-labelledby="new-thread-tab">#}
-{##}
-{#                    <div class="row">#}
-{#                        <div id="map">#}
-{#                        </div>#}
-{#                    </div>#}
-{##}
-{#                </div>#}
+                {#                <div role="tabpanel" class="tab-pane fade " id="New Thread" aria-labelledby="new-thread-tab">#}
+                {##}
+                {#                    <div class="row">#}
+                {#                        <div id="map">#}
+                {#                        </div>#}
+                {#                    </div>#}
+                {##}
+                {#                </div>#}
 
 
             </div>

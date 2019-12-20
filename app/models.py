@@ -94,7 +94,7 @@ class User(UserMixin, db.Model):
     # lazy属性常用的值的含义，select就是访问到属性的时候，就会全部加载该属性的数据;joined则是在对关联的两个表进行join操作，从而获取到所有相关的对象;dynamic则不一样，在访问属性的时候，并没有在内存中加载数据，而是返回一个query对象, 需要执行相应方法才可以获取对象，比如.all()
     posts = db.relationship('Post', backref='author', lazy='dynamic')
     message = db.relationship('One2OneMessage', backref='author', lazy='dynamic')
-
+    tmessage = db.relationship('Threadmessage', backref='author', lazy='dynamic')
     def __repr__(self):
         return '<???:{}>'.format(self.username)
 
@@ -177,7 +177,7 @@ class MThread(db.Model):
 
     creator = db.Column(db.Integer, db.ForeignKey('user.id'),nullable=False)
     sendtime = db.Column(db.DateTime, default=datetime.utcnow)
-
+    posts = db.relationship('Threadmessage', backref='head', lazy='dynamic')
 
     def __repr__(self):
         """Provide helpful representation when printed."""
@@ -197,10 +197,11 @@ class Threadmessage(db.Model):
     body = db.Column(db.String(100), nullable=False)
     sendtime = db.Column(db.DateTime, default=datetime.utcnow)
 
+
     def __repr__(self):
         """Provide helpful representation when printed."""
 
-        return "???"
+        return "!!!"
 
 
 class Hoods(db.Model):
