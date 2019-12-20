@@ -30,6 +30,7 @@ class User(UserMixin, db.Model):
     about_me = db.Column(db.String(140))
     last_seen = db.Column(db.DateTime, default=datetime.utcnow)
     hoodid = db.Column(db.Integer)
+    blockid = db.Column(db.Integer)
 
     followed = db.relationship(
         'User', secondary=followers,
@@ -165,18 +166,18 @@ class One2Onerecord(db.Model):
         return "???"
 
 
-class Thread(db.Model):
+class MThread(db.Model):
     """Connection between two users to establish a friendship and can see each other's info."""
 
     __tablename__ = "thread"
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     hoodid = db.Column(db.Integer)
     blockid = db.Column(db.Integer)
-    title = db.Column(db.String(64))
+    title = db.Column(db.String(64),nullable=False)
 
-    creator = db.Column(db.Integer, db.ForeignKey('user.id'))
+    creator = db.Column(db.Integer, db.ForeignKey('user.id'),nullable=False)
     sendtime = db.Column(db.DateTime, default=datetime.utcnow)
-    body = db.Column(db.String(100), nullable=False)
+
 
     def __repr__(self):
         """Provide helpful representation when printed."""

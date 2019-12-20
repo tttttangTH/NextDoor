@@ -67,6 +67,7 @@
 
 
                     <li><a href="{{ url_for('user', username=current_user.username) }}">Profile</a></li>
+                     <li><a href="{{ url_for('NewPost') }}">New Post</a></li>
                     <li><a href={{ url_for('show_friends_and_requests') }}>Friends <span
                             class="badge">{{ current_user.num_request() }}</span></a></li>
 

@@ -121,11 +121,11 @@
                         {#placeMarker(event.latLng);#}
                         var display = "Join " + this.name + " ?";
                         var hoodname = this.name;
-                        $.get("{{ url_for('updatehood') }}", {name: hoodname});
+
                         if (window.confirm(display)) {
                             {#window.location.href="{{ url_for('updatehood', hoodname = hoodname) }}";#}
                             {#                        window.location.href="/updatehood?hoodname="+hoodname;#}
-                            $.get("{{ url_for('updatehood') }}", {name: hoodname});
+                            $.get("{{ url_for('updateblock') }}", {name: hoodname});
                             window.location.href = "{{ url_for('index') }}";
                             {#$.ajax({#}
                             {##}

@@ -1,86 +1,69 @@
 {% extends "base.html" %}
 
 {% block content %}
- <div class="jumbotron top-header" id="user-info" data-userid="{{ user.id }}">
-    <div class="container">
-      <div class="row">
-      <table>
-        <tr valign="top">
-            <td><img src="{{ user.avatar(128) }}"></td>
-            <td>
-                <h1>User: {{ user.username }}</h1>
-                {% if user.about_me %}<p>{{ user.about_me }}</p>{% endif %}
-                {% if user.last_seen %}<p>latest Login: {{ user.last_seen }}</p>{% endif %}
-            <p>{{ user.followers.count() }} followers, {{ user.followed.count() }} following.</p>
-             {% if user == current_user %}
-                  <p><a href="{{ url_for('addhood') }}" class="button">Super</a></p>
-             <p><a href="{{ url_for('edit_profile') }}" >Edit your profile</a></p>
-                  <p><a href="{{ url_for('addhood') }}" >Edit your Hood</a></p>
-                  {% if current_user.hoodid %}
 
-                      <p><a href="{{ url_for('addblock') }}" >Apply for your block</a></p>
-                      {% endif %}
-                 {% elif not current_user.is_following(user) %}
-                 <p><a href="{{ url_for('follow', username=user.username) }}" class="button">Follow</a></p>
-        {% else %}
-         <p><a href="{{ url_for('unfollow', username=user.username) }}" class="button" > Unfollow</a></p>
-          {% endif %}
+    <div class="jumbotron top-header" id="user-info" data-userid="{{ user.id }}">
+        <div class="container">
+            <div class="row">
+                <table>
+                    <tr valign="top">
+                        <td><img src="{{ user.avatar(128) }}"></td>
+                        <td>
+                            <h1>User: {{ user.username }}</h1>
+                            {% if user.about_me %}<p>{{ user.about_me }}</p>{% endif %}
+                            {% if user.last_seen %}<p>latest Login: {{ user.last_seen }}</p>{% endif %}
+                            <p>{{ user.followers.count() }} followers, {{ user.followed.count() }} following.</p>
+                            {% if user == current_user %}
+                                <p><a href="{{ url_for('addhood') }}" class="button">Super</a></p>
+                                <p><a href="{{ url_for('edit_profile') }}">Edit your profile</a></p>
+                                <p><a href="{{ url_for('addhood') }}">Edit your Hood</a></p>
+                                {% if current_user.hoodid %}
 
-          {% if current_user != user %}
+                                    <p><a href="{{ url_for('addblock') }}">Apply for your block</a></p>
+                                {% endif %}
+                            {% elif not current_user.is_following(user) %}
+                                <p><a href="{{ url_for('follow', username=user.username) }}" class="button">Follow</a>
+                                </p>
+                            {% else %}
+                                <p><a href="{{ url_for('unfollow', username=user.username) }}" class="button">
+                                    Unfollow</a></p>
+                            {% endif %}
 
-            {% if friends %}
+                            {% if current_user != user %}
 
-
-              <button class="btn btn-primary disabled" id="accepted-btn"><span class="fa fa-users" aria-hidden="true"></span> Friends</button>
-            {% elif pending_request %}
-              <button class="btn btn-primary disabled" id="requested-btn"><span class="fa fa-clock-o" aria-hidden="true"></span> Request Pending</button>
-            {% else %}
-{#              <form id="add-friend-form" action="/add-friend" method="post">#}
-{#                <button type="submit" class="btn btn-primary" id="add-friend-btn"><span class="fa fa-user-plus" aria-hidden="true"></span> Add Friend</button>#}
-{#              </form>#}
-                <p><a href="{{ url_for('add_friend', username=user.username) }}" class="button">Add Friend</a></p>
-            {% endif %}
+                                {% if friends %}
 
 
-             {% endif %}
+                                    <button class="btn btn-primary disabled" id="accepted-btn"><span class="fa fa-users"
+                                                                                                     aria-hidden="true"></span>
+                                        Friends
+                                    </button>
+                                {% elif pending_request %}
+                                    <button class="btn btn-primary disabled" id="requested-btn"><span
+                                            class="fa fa-clock-o" aria-hidden="true"></span> Request Pending
+                                    </button>
+                                {% else %}
+                                    {#              <form id="add-friend-form" action="/add-friend" method="post">#}
+                                    {#                <button type="submit" class="btn btn-primary" id="add-friend-btn"><span class="fa fa-user-plus" aria-hidden="true"></span> Add Friend</button>#}
+                                    {#              </form>#}
+                                    <p><a href="{{ url_for('add_friend', username=user.username) }}" class="button">Add
+                                        Friend</a></p>
+                                {% endif %}
 
-            </td>
-        </tr>
-    </table>
 
-    <hr>
+                            {% endif %}
 
-     </div><!-- /.row -->
+                        </td>
+                    </tr>
+                </table>
 
-    </div><!-- /.container -->
- <div class="row">
-    {% if form %}
-        <form action="" method="post">
-            {{ form.hidden_tag() }}
-            <p>
-                {{ form.post.label }}<br>
-                {{ form.post(cols=32, rows=4) }}<br>
-                {% for error in form.post.errors %}
-                    <span style="color: red;">[{{ error }}]</span>
-                {% endfor %}
-            </p>
-            <p>{{ form.submit() }}</p>
-        </form>
-    {% endif %}
-    {% for post in posts %}
+                <hr>
 
-        {% include '__post.html' %}
+            </div><!-- /.row -->
 
-    {% endfor %}
-    {% if prev_url %}
-        <a href="{{ prev_url }}">Newer posts</a>
-    {% endif %}
-    {% if next_url %}
-        <a href="{{ next_url }}">Older posts</a>
-    {% endif %}
+        </div><!-- /.container -->
 
-    </div><!-- /.row -->
-  </div><!-- /.jumbotron -->
+    </div><!-- /.jumbotron -->
 
 {% endblock %}
 {% block javascript %}

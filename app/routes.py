@@ -2,7 +2,7 @@ from flask import render_template, flash, redirect, url_for
 from flask_login import current_user, login_user
 from app.forms import LoginForm, PostForm
 from app.models import User, Post, Connection, is_friends_or_pending, get_friends, get_friend_requests, Hoods, Blocks, \
-    One2OneMessage,Thread,Threadmessage
+    One2OneMessage, MThread, Threadmessage
 from flask_login import logout_user
 from flask_login import login_required
 from flask import request
@@ -47,9 +47,9 @@ def index():
         if posts.has_prev else None
 
     # posts = current_user.followed_posts().all()
-    return render_template('index.html', title='tth', form=form, posts=posts.items,
-                           next_url=next_url, prev_url=prev_url)
-
+    # return render_template('index.html', title='tth', form=form, posts=posts.items,
+    #                        next_url=next_url, prev_url=prev_url)
+    return render_template('index.html')
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -159,7 +159,7 @@ def edit_profile():
         current_user.about_me = form.about_me.data
         db.session.commit()
         flash('Your changes have been saved.')
-        return redirect(url_for('edit_profile '))
+        return redirect(url_for('edit_profile'))
     elif request.method == 'GET':
         form.username.data = current_user.username
         form.about_me.data = current_user.about_me
@@ -456,9 +456,9 @@ def submitblock():
 
     hoodname = request.form.get("category")
     print(hoodname)
-    hood = Hoods.query.filter_by(hoodname=hoodname ).first()
+    hood = Hoods.query.filter_by(hoodname=hoodname).first()
     blockname = request.form.get("description")
-    block = Blocks(north=north, south=south, west=west, east=east, hood_id=hood.connection_id,blockname = blockname )
+    block = Blocks(north=north, south=south, west=west, east=east, hood_id=hood.connection_id, blockname=blockname)
     db.session.add(block)
     db.session.commit()
     return redirect(url_for('addblock'))
@@ -470,11 +470,12 @@ def submitblock():
 def updateblock():
     name = request.args.get('name')
 
-    hood = Hoods.query.filter_by(hoodname=name).first()
+    block = Blocks.query.filter_by(blockname=name).first()
     print(hood)
-    current_user.hoodid = hood.connection_id
+    current_user.blockid = block.connection_id
     db.session.commit()
     # return redirect(url_for('index'))
+
 
 @app.route('/addthread', methods=['POST'])
 @login_required
@@ -484,9 +485,23 @@ def addthread():
     body = request.form.get("body")
     # if (type == "Hood")
     # print(type)
-
-    hood = Hoods.query.filter_by(hoodname=name).first()
-    print(hood)
-    current_user.hoodid = hood.connection_id
+    blockid = None
+    hoodid = None
+    print(title, type, body)
+    if type == "Block":
+        blockid = current_user.blockid
+    else:
+        hoodid = current_user.hoodid
+    thread = MThread(hoodid=hoodid, blockid=blockid, title=title, creator=current_user.id)
+    db.session.add(thread)
     db.session.commit()
-    # return redirect(url_for('index'))
+    message = Threadmessage(threadid=thread.id, sender=current_user.id, body=body)
+    db.session.add(message)
+    db.session.commit()
+    return redirect(url_for('index'))
+
+
+@app.route('/NewPost')
+@login_required
+def NewPost():
+    return render_template('newpost.html')

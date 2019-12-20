@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+{% block title %}New Post{% endblock %}
+{% block content %}
+
+<div class="container" id="features-section">
+    <div class="col">
+        <div id = "map">
+        </div>
+        <div class="col">
+
+                <form action="/addthread" method="post">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                    <div class="form-group">
+                        <label for="exampleFormControlInput1">Title</label>
+                        <input name="title" type="title" class="form-control" id="exampleFormControlInput1"
+                               placeholder="your title">
+                    </div>
+                    {#  <div class="form-group">#}
+                    {#    <label for="exampleFormControlSelect1">Type</label>#}
+                    {#    <select class="form-control" id="exampleFormControlSelect1">#}
+                    {#      <option>Hood</option>#}
+                    {#      <option>Block</option>#}
+                    {#      #}
+                    {#    </select>#}
+                    {#  </div>#}
+                    <div class="form-group">
+                        <label for="exampleFormControlSelect1">Type</label>
+                        <select name="type" class="form-control" id="exampleFormControlSelect1">
+                            <option>Block</option>
+                            <option>Hood</option>
+
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="exampleFormControlTextarea1">Description</label>
+                        <textarea name="body" class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Summit</button>
+                </form>
+                {#        <form action="" method="post">#}
+                {#            {{ form.hidden_tag() }}#}
+                {#            <p>#}
+                {#                {{ form.post.label }}<br>#}
+                {#                {{ form.post(cols=32, rows=4) }}<br>#}
+                {#                {% for error in form.post.errors %}#}
+                {#                    <span style="color: red;">[{{ error }}]</span>#}
+                {#                {% endfor %}#}
+                {#            </p>#}
+                {#            <p>{{ form.submit() }}</p>#}
+                {#        </form>#}
+                </div>
+{#        {% for post in posts %}#}
+
+            {#        {% include '__post.html' %}#}
+
+{#        {% endfor %}#}
+{#        {% if prev_url %}#}
+{#            <a href="{{ prev_url }}">Newer posts</a>#}
+{#        {% endif %}#}
+{#        {% if next_url %}#}
+{#            <a href="{{ next_url }}">Older posts</a>#}
+{#        {% endif %}#}
+
+
+    </div><!-- /.container -->
+
+
+
+{% endblock %}
+
+{% block javascript %}
+    <script>
+        var map;
+        var marker;
+        var cen = {lat: 40.630243328181834, lng: -73.9698145822461};
+
+        function initMap() {
+            map = new google.maps.Map(document.getElementById('map'), {
+                center: cen,
+                zoom: 13,
+            });
+            google.maps.event.addListener(map, 'click',
+                function (event) {
+                    {#placeMarker(event.latLng);#}
+                });
+            {#placeHoods({{ blocks | safe}});#}
+
+        }
+
+        initMap();
+
+    </script>
+
+{% endblock %}

@@ -22,70 +22,85 @@
             {% endif %}
         </div><!-- /.container -->
     </div><!-- /.jumbotron -->
-    <div class="container" id="features-section">
-    <div class="col">
-        <div id="map">
 
-        </div>
-        <div class="col">
-            {% if form %}
-                <form action="/addthread" method="post">
-                    {{ form.hidden_tag() }}
-                    <div class="form-group">
-                        <label for="exampleFormControlInput1">Title</label>
-                        <input name="title" type="title" class="form-control" id="exampleFormControlInput1"
-                               placeholder="your title">
-                    </div>
-                    {#  <div class="form-group">#}
-                    {#    <label for="exampleFormControlSelect1">Type</label>#}
-                    {#    <select class="form-control" id="exampleFormControlSelect1">#}
-                    {#      <option>Hood</option>#}
-                    {#      <option>Block</option>#}
-                    {#      #}
-                    {#    </select>#}
-                    {#  </div>#}
-                    <div class="form-group">
-                        <label for="exampleFormControlSelect1">Type</label>
-                        <select name="type" class="form-control" id="exampleFormControlSelect1">
-                            <option>Block</option>
-                            <option>Hood</option>
+    <div class="container" id="main-section">
+        <div>
+            <ul class="nav nav-tabs" role="tablist">
+                <li role="presentation" class="active">
+                    <a href="#Hoods" id="hoods-tab" role="tab" data-toggle="tab" aria-controls="hoods"
+                       aria-expanded="true">Hood Threads</a>
+                </li>
+{#                <li role="presentation" class="dropdown">#}
+{#                    <a href="#" id="tab-drop" class="dropdown-toggle" data-toggle="dropdown"#}
+{#                       aria-controls="tab-drop-contents" aria-expanded="false">#}
+{#                        Blocks Threads#}
+{#                        <span class="badge">{{ current_user.num_request() }}</span>#}
+{#                        <span class="caret"></span>#}
+{#                    </a>#}
+{#                    <ul class="dropdown-menu" aria-labelledby="tab-drop" id="tab-drop-contents">#}
+{#                        <li>#}
+{#                            <a href="#Blocks" id="blocks-tab" role="tab"#}
+{#                               data-toggle="tab" aria-controls="blocks">#}
+{#                                Message#}
+{#                                <span class="badge">{{ current_user.num_receive_request() }}</span>#}
+{#                            </a>#}
+{#                        </li>#}
+{#                        <li>#}
+{#                            <a  href="#Blocks-apply" id="blocks-apply-tab" role="tab" data-toggle="tab"#}
+{#                               aria-controls="blocks-apply">#}
+{#                                block Appication#}
+{#                                <span class="badge">{{ current_user.num_sent_request() }}</span>#}
+{#                            </a>#}
+{#                        </li>#}
+{#                    </ul>#}
+{#                </li>#}
+                <li role="presentation">
+                    <a href="#Blocks" id="blocks-tab" role="tab"
+                               data-toggle="tab" aria-controls="blocks" aria-expanded="false">
+                                Blocks Threads</a>
+{#                    <a  href="#Blocks-apply" id="block-apply-tab" role="tab" data-toggle="tab"#}
+{#                       aria-controls="block-apply" aria-expanded="false">Blocks Apply</a>#}
+                </li>
+                <li role="presentation">
+                    <a  href="#Blocks-apply" id="block-apply-tab" role="tab" data-toggle="tab"
+                       aria-controls="block-apply" aria-expanded="false">Blocks Apply</a>
+                </li>
+            </ul>
+            <div class="tab-content">
 
-                        </select>
-                    </div>
+                <div role="tabpanel" class="tab-pane fade active in" id="Hoods" aria-labelledby="hoods-tab">
+                    <div class="row">
 
-                    <div class="form-group">
-                        <label for="exampleFormControlTextarea1">Description</label>
-                        <textarea name="body" class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
                     </div>
-                    <button type="submit" class="btn btn-primary">Summit</button>
-                </form>
-                {#        <form action="" method="post">#}
-                {#            {{ form.hidden_tag() }}#}
-                {#            <p>#}
-                {#                {{ form.post.label }}<br>#}
-                {#                {{ form.post(cols=32, rows=4) }}<br>#}
-                {#                {% for error in form.post.errors %}#}
-                {#                    <span style="color: red;">[{{ error }}]</span>#}
-                {#                {% endfor %}#}
-                {#            </p>#}
-                {#            <p>{{ form.submit() }}</p>#}
-                {#        </form>#}
                 </div>
-            {% endif %}
-        {% for post in posts %}
 
-            {#        {% include '__post.html' %}#}
+                <div role="tabpanel" class="tab-pane fade " id="Blocks" aria-labelledby="blocks-tab">
+                    <h2> ???</h2>
+                    <div class="row">
 
-        {% endfor %}
-        {% if prev_url %}
-            <a href="{{ prev_url }}">Newer posts</a>
-        {% endif %}
-        {% if next_url %}
-            <a href="{{ next_url }}">Older posts</a>
-        {% endif %}
+                    </div>
+                </div>
+
+                <div role="tabpanel" class="tab-pane fade " id="Blocks-apply" aria-labelledby="blocks-apply-tab">
+
+                    <div class="row">
+
+                    </div>
+                </div>
+
+{#                <div role="tabpanel" class="tab-pane fade " id="New Thread" aria-labelledby="new-thread-tab">#}
+{##}
+{#                    <div class="row">#}
+{#                        <div id="map">#}
+{#                        </div>#}
+{#                    </div>#}
+{##}
+{#                </div>#}
 
 
-    </div><!-- /.container -->
+            </div>
+        </div>
+    </div>
 
 
 
@@ -104,13 +119,13 @@
             });
             google.maps.event.addListener(map, 'click',
                 function (event) {
-                    placeMarker(event.latLng);
+                    {#placeMarker(event.latLng);#}
                 });
-            placeHoods({{ blocks | safe}});
+            {#placeHoods({{ blocks | safe}});#}
 
         }
 
-        initMap();
+        {#initMap();#}
 
     </script>
 
