@@ -69,23 +69,27 @@
             <div class="tab-content">
 
                 <div role="tabpanel" class="tab-pane fade active in" id="Hoods" aria-labelledby="hoods-tab">
+                {% if hoods %}
                     {% for hood in hoods %}
                         <a href="{{ url_for('threadview',threadid = hood.id) }}">
-                        <span class="clickable"><div class="row">
+                        <div class="row">
                     {{ hood.title }}
-                    </div></span>
+                    </div>
                         </a>
                     {% endfor %}
+                {% endif %}
                 </div>
 
                 <div role="tabpanel" class="tab-pane fade " id="Blocks" aria-labelledby="blocks-tab">
+                {% if blocks%}
                     {% for hood in blocks %}
                         <a href="{{ url_for('threadview',threadid = hood.id) }}">
-                        <span class="clickable"><div class="row">
+                       <div class="row">
                     {{ hood.title }}
-                    </div></span>
+                    </div>
                         </a>
                     {% endfor %}
+                 {% endif %}
                 </div>
 
                 <div role="tabpanel" class="tab-pane fade " id="Blocks-apply" aria-labelledby="blocks-apply-tab">

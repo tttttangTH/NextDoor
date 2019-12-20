@@ -42,6 +42,10 @@
         {##}
         {#            </select>#}
         {#        </div>#}
+        <label for="lat"></label>
+        <input name="lat" id="lat"  type="hidden">
+        <label for="lon"></label>
+        <input name="lon" id="lon"  type="hidden">
 
         <div class="form-group">
             <label for="exampleFormControlTextarea1">Reply</label>
@@ -74,18 +78,17 @@
         function placeMarker(location) {
             if (marker) {
                 marker.setPosition(location);
-                document.getElementById('south').value = location.lat();
-                document.getElementById('east').value = location.lng();
+
 
             } else {
                 marker = new google.maps.Marker({
                     position: location,
                     map: map
                 });
-                document.getElementById('north').value = location.lat();
-                document.getElementById('west').value = location.lng();
 
             }
+            document.getElementById('lat').value = location.lat();
+                document.getElementById('lon').value = location.lng();
 
         }
 

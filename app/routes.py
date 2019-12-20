@@ -111,7 +111,7 @@ def register():
 @app.route('/user/<username>', methods=['GET', 'POST'])
 @login_required
 def user(username):
-    user = User.query.filter_by(username==username).first_or_404()
+    user = User.query.filter_by(username=username).first_or_404()
     form = None
     friends, pending_request = is_friends_or_pending(current_user.id, user.id)
     if user.id != current_user.id and (current_user.is_following(user) or friends):
