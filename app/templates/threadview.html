@@ -6,17 +6,91 @@
     {% for message in messages %}
 
         <table>
-        <tr valign="top"><td>
-            <img src="{{ message.author.avatar(36) }}"></td>
+            <tr valign="top">
+                <td>
+                    <img src="{{ message.author.avatar(36) }}"></td>
 
-            <td><a href="{{ url_for('user', username=message.author.username) }}">
+                <td><a href="{{ url_for('user', username=message.author.username) }}">
                     {{ message.author.username }}
                 </a>
-Says:<br>{{ message.body}}</td>
-        </tr>
-    </table>
+                    Says:<br>{{ message.body }}</td>
+            </tr>
+        </table>
 
-                    {% endfor %}
+    {% endfor %}
+    <div id="map"></div>>
+    <form action="/replymessage" method="post">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+        {#        <div class="form-group">#}
+        {#            <label for="exampleFormControlInput1">Title</label>#}
+        {#            <input name="title" type="title" class="form-control" id="exampleFormControlInput1"#}
+        {#                   placeholder="your title">#}
+        {#        </div>#}
+        {#  <div class="form-group">#}
+        {#    <label for="exampleFormControlSelect1">Type</label>#}
+        {#    <select class="form-control" id="exampleFormControlSelect1">#}
+        {#      <option>Hood</option>#}
+        {#      <option>Block</option>#}
+        {#      #}
+        {#    </select>#}
+        {#  </div>#}
+        {#        <div class="form-group">#}
+        {#            <label for="exampleFormControlSelect1">Type</label>#}
+        {#            <select name="type" class="form-control" id="exampleFormControlSelect1">#}
+        {#                <option>Block</option>#}
+        {#                <option>Hood</option>#}
+        {##}
+        {#            </select>#}
+        {#        </div>#}
 
+        <div class="form-group">
+            <label for="exampleFormControlTextarea1">Reply</label>
+            <textarea name="body" class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Summit</button>
+    </form>
+
+
+{% endblock %}
+{% block javascript %}
+    <script>
+        var map;
+        var marker;
+        var cen = {lat: 40.630243328181834, lng: -73.9698145822461};
+
+        function initMap() {
+            map = new google.maps.Map(document.getElementById('map'), {
+                center: cen,
+                zoom: 13,
+            });
+            google.maps.event.addListener(map, 'click',
+                function (event) {
+                    placeMarker(event.latLng);
+                });
+            {#placeHoods({{ blocks | safe}});#}
+
+        }
+
+        function placeMarker(location) {
+            if (marker) {
+                marker.setPosition(location);
+                document.getElementById('south').value = location.lat();
+                document.getElementById('east').value = location.lng();
+
+            } else {
+                marker = new google.maps.Marker({
+                    position: location,
+                    map: map
+                });
+                document.getElementById('north').value = location.lat();
+                document.getElementById('west').value = location.lng();
+
+            }
+
+        }
+
+        initMap();
+
+    </script>
 
 {% endblock %}

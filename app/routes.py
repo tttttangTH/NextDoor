@@ -46,8 +46,8 @@ def index():
     prev_url = url_for('index', page=posts.prev_num) \
         if posts.has_prev else None
 
-    hoods = MThread.query.filter_by(hoodid=current_user.hoodid).all()
-    blocks = MThread.query.filter_by(blockid=current_user.blockid).all()
+    hoods = MThread.query.filter_by( hoodid=current_user.hoodid).all() if  current_user.hoodid else None
+    blocks = MThread.query.filter_by( blockid=current_user.blockid).all() if  current_user.blockid else None
     # for hood in hoods:
     #     print(hood.head)
 
@@ -111,7 +111,7 @@ def register():
 @app.route('/user/<username>', methods=['GET', 'POST'])
 @login_required
 def user(username):
-    user = User.query.filter_by(username=username).first_or_404()
+    user = User.query.filter_by(username==username).first_or_404()
     form = None
     friends, pending_request = is_friends_or_pending(current_user.id, user.id)
     if user.id != current_user.id and (current_user.is_following(user) or friends):
@@ -519,3 +519,27 @@ def threadview(threadid):
     Message = Threadmessage.query.filter_by(id=threadid).order_by(Threadmessage.sendtime).all()
     print(Message)
     return render_template('threadview.html',messages = Message)
+
+
+@app.route('/replymessage', methods=['POST'])
+@login_required
+def replymessage():
+    title = request.form.get("title")
+    type = request.form.get("type")
+    body = request.form.get("body")
+    # if (type == "Hood")
+    # print(type)
+    blockid = None
+    hoodid = None
+    print(title, type, body)
+    if type == "Block":
+        blockid = current_user.blockid
+    else:
+        hoodid = current_user.hoodid
+    thread = MThread(hoodid=hoodid, blockid=blockid, title=title, creator=current_user.id)
+    db.session.add(thread)
+    db.session.commit()
+    message = Threadmessage(threadid=thread.id, sender=current_user.id, body=body)
+    db.session.add(message)
+    db.session.commit()
+    return redirect(url_for('index'))
