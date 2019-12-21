@@ -7,6 +7,10 @@
             <h2>Hi, {{ current_user.username }} !</h2>
             <p class="site-description indent">
                 Look for your neighbor.
+                 <br>
+                Your hoodid {{ current_user.hoodid }}
+                <br>
+                 Your blockid {{ current_user.blockid }}
                 <br>
 
             </p>
@@ -27,10 +31,10 @@
         <div>
             <ul class="nav nav-tabs" role="tablist">
                 {% if current_user.hoodid %}
-                <li role="presentation" class="active">
-                    <a href="#Hoods" id="hoods-tab" role="tab" data-toggle="tab" aria-controls="hoods"
-                       aria-expanded="true">Hood Threads</a>
-                </li>
+                    <li role="presentation" class="active">
+                        <a href="#Hoods" id="hoods-tab" role="tab" data-toggle="tab" aria-controls="hoods"
+                           aria-expanded="true">Hood Threads</a>
+                    </li>
                 {% endif %}
                 {#                <li role="presentation" class="dropdown">#}
                 {#                    <a href="#" id="tab-drop" class="dropdown-toggle" data-toggle="dropdown"#}
@@ -56,50 +60,80 @@
                 {#                        </li>#}
                 {#                    </ul>#}
                 {#                </li>#}
-             {% if current_user.blockid %}
-                <li role="presentation">
-                    <a href="#Blocks" id="blocks-tab" role="tab"
-                       data-toggle="tab" aria-controls="blocks" aria-expanded="false">
-                        Blocks Threads</a>
-                    {#                    <a  href="#Blocks-apply" id="block-apply-tab" role="tab" data-toggle="tab"#}
-                    {#                       aria-controls="block-apply" aria-expanded="false">Blocks Apply</a>#}
-                </li>
-                <li role="presentation">
-                    <a href="#Blocks-apply" id="block-apply-tab" role="tab" data-toggle="tab"
-                       aria-controls="block-apply" aria-expanded="false">Blocks Apply</a>
-                </li>
-             {% endif %}
+                {% if current_user.blockid %}
+                    <li role="presentation">
+                        <a href="#Blocks" id="blocks-tab" role="tab"
+                           data-toggle="tab" aria-controls="blocks" aria-expanded="false">
+                            Blocks Threads</a>
+                        {#                    <a  href="#Blocks-apply" id="block-apply-tab" role="tab" data-toggle="tab"#}
+                        {#                       aria-controls="block-apply" aria-expanded="false">Blocks Apply</a>#}
+                    </li>
+                    <li role="presentation">
+                        <a href="#Blocks-apply" id="block-apply-tab" role="tab" data-toggle="tab"
+                           aria-controls="block-apply" aria-expanded="false">Blocks Apply
+                            <span class="badge">{{ num_wait }}</span>
+                        </a>
+                    </li>
+                {% endif %}
             </ul>
             <div class="tab-content">
 
                 <div role="tabpanel" class="tab-pane fade active in" id="Hoods" aria-labelledby="hoods-tab">
-                {% if hoods %}
-                    {% for hood in hoods %}
-                        <a href="{{ url_for('threadview',threadid = hood.id) }}">
-                        <div class="row">
-                    {{ hood.title }}
-                    </div>
-                        </a>
-                    {% endfor %}
-                {% endif %}
+                    {% if hoods %}
+                        {% for hood in hoods %}
+                            <a href="{{ url_for('threadview',threadid = hood.id) }}">
+                                <div class="row">
+                                    {{ hood.title }}
+                                </div>
+                            </a>
+                        {% endfor %}
+                    {% endif %}
                 </div>
 
                 <div role="tabpanel" class="tab-pane fade " id="Blocks" aria-labelledby="blocks-tab">
-                {% if blocks%}
-                    {% for block in blocks %}
-                        <a href="{{ url_for('threadview',threadid = block.id) }}">
-                       <div class="row">
-                    {{ block.title }}
-                    </div>
-                        </a>
-                    {% endfor %}
-                 {% endif %}
+                    {% if blocks %}
+                        {% for block in blocks %}
+                            <a href="{{ url_for('threadview',threadid = block.id) }}">
+                                <div class="row">
+                                    {{ block.title }}
+                                </div>
+                            </a>
+                        {% endfor %}
+                    {% endif %}
                 </div>
 
                 <div role="tabpanel" class="tab-pane fade " id="Blocks-apply" aria-labelledby="blocks-apply-tab">
 
                     <div class="row">
+                        {% if waitapply %}
+                            {% for buser in waitapply %}
+                                <div class="col-xs-6 col-sm-2" id="user-profile-pic-sm">
+                                    <a href="user/{{ buser.username }}">
+                                        {#                    {% if received_friend_request.user_id == 3 %}#}
+                                        {#                      <img class="img-circle img-responsive" src="/static/img/profile-stan-marsh.jpg">#}
+                                        {#                    {% else %}#}
+                                        {#                      <img class="img-circle img-responsive" src="/static/img/profile-avatar.png">#}
+                                        {#                    {% endif %}#}
+                                        <img class="img-circle img-responsive" src="{{ buser.avatar(128) }}">
+                                        {{ buser.username }}
+                                    </a>
+                                    <br><br>
+                                    <button type="button"
+                                            onclick="window.location.href='{{ url_for( 'accept_block' ,username =buser.username ) }}'; "
+                                            class="btn btn-success" id="accepted-btn">Accept
+                                    </button>
+                                    <button type="button"
+                                            onclick="window.location.href='{{ url_for( 'decline_block' ,username =buser.username ) }}';"
+                                            class="btn btn-danger" id="deleted-btn">Decline
+                                    </button>
+                                </div><!-- /.col -->
+                            {% endfor %}
+                        {% else %}
+                            <div class="col-xs-12">
+                                <p>No pending Block apply </p>
+                            </div>
 
+                        {% endif %}
                     </div>
                 </div>
 

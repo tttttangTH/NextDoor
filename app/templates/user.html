@@ -17,9 +17,13 @@
                                 <p><a href="{{ url_for('addhood') }}" class="button">Super</a></p>
                                 <p><a href="{{ url_for('edit_profile') }}">Edit your profile</a></p>
                                 <p><a href="{{ url_for('addhood') }}">Edit your Hood</a></p>
-                                {% if current_user.hoodid %}
-
+                                {% if current_user.hoodid  %}
+                                   {% if not blockapply  %}
                                     <p><a href="{{ url_for('addblock') }}">Apply for your block</a></p>
+                                       {% endif %}
+                                     {% if blockapply  %}
+                                          <p><a href="{{ url_for('cancer_blockapp') }}">Cancer your block apply</a></p>
+                                          {% endif %}
                                 {% endif %}
                             {% elif not current_user.is_following(user) %}
                                 <p><a href="{{ url_for('follow', username=user.username) }}" class="button">Follow</a>

@@ -2,7 +2,7 @@ from flask import render_template, flash, redirect, url_for
 from flask_login import current_user, login_user
 from app.forms import LoginForm, PostForm
 from app.models import User, Post, Connection, is_friends_or_pending, get_friends, get_friend_requests, Hoods, Blocks, \
-    One2OneMessage, MThread, Threadmessage
+    One2OneMessage, MThread, Threadmessage, Blockapply, Blockreveive
 from flask_login import logout_user
 from flask_login import login_required
 from flask import request
@@ -14,10 +14,15 @@ from app.forms import EditProfileForm
 from sqlalchemy_searchable import search
 from app import csrf
 import json
-
+from datetime import datetime
 
 # from app.friends import is_friends_or_pending, get_friend_requests, get_friends
-
+@app.after_request
+@login_required
+def after_quest(response):
+    current_user.last_seen = datetime.utcnow()
+    db.session.commit()
+    return response
 
 @app.route('/test', methods=['GET', 'POST'])
 def test():
@@ -30,6 +35,7 @@ def test():
 @app.route('/index', methods=['GET', 'POST'])
 @login_required
 def index():
+    print(current_user.last_seen)
     # form = PostForm()
     # if form.validate_on_submit():
     #     post = Post(body=form.post.data, author=current_user)
@@ -48,13 +54,27 @@ def index():
 
     hoods = MThread.query.filter_by(hoodid=current_user.hoodid).all() if current_user.hoodid else None
     blocks = MThread.query.filter_by(blockid=current_user.blockid).all() if current_user.blockid else None
+    waitapply = None
+
+    if current_user.blockid:
+        blockapply = Blockapply.query.filter_by(blockid=current_user.blockid).all()
+        print(blockapply)
+
+        blockhavereceive = Blockreveive.query.filter_by(blockid=current_user.blockid, accepter=current_user.id).all()
+        print(blockhavereceive)
+        reveivelist = [int(item.applicant) for item in blockhavereceive]
+        blocklist = [int(item.applicant) for item in blockapply if int(item.applicant) not in reveivelist]
+        waitapply = [User.query.filter_by(id=id).one() for id in blocklist]
+
+
+    num_wait = 0 if not waitapply else len(waitapply)
     # for hood in hoods:
     #     print(hood.head)
 
     # posts = current_user.followed_posts().all()
     # return render_template('index.html', title='tth', form=form, posts=posts.items,
     #                        next_url=next_url, prev_url=prev_url)
-    return render_template('index.html', hoods=hoods, blocks=blocks)
+    return render_template('index.html', hoods=hoods, blocks=blocks, num_wait=num_wait, waitapply=waitapply)
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -128,6 +148,7 @@ def user(username):
     reveive_friends = db.session.query(One2OneMessage).filter(One2OneMessage.user_a_id == user.id,
                                                               One2OneMessage.user_b_id == current_user.id)
     all_message = to_friends.union(reveive_friends)
+    blockapply = db.session.query(Blockapply).filter(Blockapply.applicant==current_user.id).first()
     # posts = all_message.order_by(One2OneMessage.sendtime.desc()).paginate(
     #     page, app.config['POSTS_PER_PAGE'], False)
     # next_url = url_for('user', username=user.username, page=posts.next_num) \
@@ -141,7 +162,7 @@ def user(username):
     user_a_id = current_user.id
     user_b_id = user.id
 
-    return render_template('user.html', form=form, user=user, posts=all_message,
+    return render_template('user.html', form=form, user=user, posts=all_message, blockapply = blockapply,
                            # posts=posts.items, # next_url=next_url, prev_url=prev_url,
                            total_friends=total_friends,
                            friends=friends,
@@ -471,16 +492,48 @@ def submitblock():
 
 
 @csrf.exempt
+@app.route('/applyblock', methods=['GET'])
+@login_required
+def applyblock():
+    name = request.args.get('name')
+
+    block = Blocks.query.filter_by(blockname=name).first()
+    blockapply = Blockapply(blockid=block.connection_id, applicant=current_user.id)
+
+    # print(hood)
+    # current_user.blockid = block.connection_id
+    db.session.add(blockapply)
+    db.session.commit()
+    return redirect(url_for('index'))
+
+
+@csrf.exempt
 @app.route('/updateblock', methods=['GET'])
 @login_required
 def updateblock():
     name = request.args.get('name')
 
     block = Blocks.query.filter_by(blockname=name).first()
-    print(hood)
+    # blockapply = Blockapply(block_id=block, applicant=current_user.id)
+
+    # print(hood)
     current_user.blockid = block.connection_id
+    # db.session.add(blockapply)
     db.session.commit()
-    # return redirect(url_for('index'))
+    return redirect(url_for('index'))
+
+
+# @csrf.exempt
+# @app.route('/updateblock', methods=['GET'])
+# @login_required
+# def updateblock():
+#     name = request.args.get('name')
+#
+#     block = Blocks.query.filter_by(blockname=name).first()
+#     print(hood)
+#     current_user.blockid = block.connection_id
+#     db.session.commit()
+#     # return redirect(url_for('index'))
 
 
 @app.route('/addthread', methods=['POST'])
@@ -526,14 +579,11 @@ def threadview(threadid):
 @app.route('/replymessage/<threadid>', methods=['POST'])
 @login_required
 def replymessage(threadid):
-
-
     body = request.form.get("body")
     print(request.form.get("lat"))
     print(request.form.get("lon"))
     lat = float(request.form.get("lat")) if request.form.get("lat") else None
     lon = float(request.form.get("lon")) if request.form.get("lon") else None
-
 
     # if (type == "Hood")
     # print(type)
@@ -547,4 +597,63 @@ def replymessage(threadid):
     print(threadid)
     db.session.add(message)
     db.session.commit()
-    return redirect(url_for('threadview',threadid = threadid))
+    return redirect(url_for('threadview', threadid=threadid))
+
+
+@app.route('/accept_block/<username>')
+@login_required
+def accept_block(username):
+    """Send a friend request to another user."""
+    user = User.query.filter_by(username=username).first()
+
+    tmp = db.session.query(Blockapply).filter(Blockapply.blockid==current_user.blockid, Blockapply.applicant==user.id).first()
+    if tmp.count == 2:
+        rec = db.session.query(Blockreveive).filter(Blockreveive.blockid==current_user.blockid, Blockreveive.applicant==user.id).all()
+        for item in rec:
+            db.session.delete(item)
+        # db.session.delete(rec)
+        db.session.delete(tmp)
+        user.blockid = current_user.blockid
+        db.session.commit()
+        return redirect(url_for('index'))
+    else:
+        tmp.count = tmp.count + 1
+        br = Blockreveive(blockid=current_user.blockid, applicant=user.id, accepter=current_user.id)
+        db.session.add(br)
+        db.session.commit()
+        return redirect(url_for('index'))
+
+    # print(user_b_id, "sss")
+    # print(request.form)
+    # Check connection status between user_a and user_b
+    # sender = db.session.query(Connection).filter(Connection.user_a_id == user_b_id,
+    #                                              Connection.user_b_id == user_a_id,
+    #                                              Connection.status == "Requested").first()
+
+
+@app.route('/decline_block/<username>')
+@login_required
+def decline_block(username):
+    user = User.query.filter_by(username=username).first()
+
+    # tmp = db.session.query(Blockapply).filter(block_id=current_user.blockid, applicant=user.id).first()
+    br = Blockreveive(blockid=current_user.blockid, applicant=user.id, accepter=current_user.id)
+    db.session.add(br)
+    db.session.commit()
+
+    return redirect(url_for('index'))
+
+
+@app.route('/cancer_blockapp/')
+@login_required
+def cancer_blockapp():
+    """Send a friend request to another user."""
+    tmp = db.session.query(Blockapply).filter(Blockapply.applicant==current_user.id).first()
+    rec = db.session.query(Blockreveive).filter(Blockreveive.applicant==current_user.id).all()
+
+    db.session.delete(tmp)
+    for item in rec:
+        db.session.delete(item)
+    db.session.commit()
+
+    return redirect(url_for('index'))

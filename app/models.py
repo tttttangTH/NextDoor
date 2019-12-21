@@ -95,6 +95,9 @@ class User(UserMixin, db.Model):
     posts = db.relationship('Post', backref='author', lazy='dynamic')
     message = db.relationship('One2OneMessage', backref='author', lazy='dynamic')
     tmessage = db.relationship('Threadmessage', backref='author', lazy='dynamic')
+    aptapp = db.relationship('Blockapply', backref='aptt', lazy='dynamic')
+    aptrev = db.relationship('Blockreveive', backref='apt', lazy='dynamic')
+
     def __repr__(self):
         return '<???:{}>'.format(self.username)
 
@@ -173,9 +176,9 @@ class MThread(db.Model):
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     hoodid = db.Column(db.Integer)
     blockid = db.Column(db.Integer)
-    title = db.Column(db.String(64),nullable=False)
+    title = db.Column(db.String(64), nullable=False)
 
-    creator = db.Column(db.Integer, db.ForeignKey('user.id'),nullable=False)
+    creator = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     sendtime = db.Column(db.DateTime, default=datetime.utcnow)
     posts = db.relationship('Threadmessage', backref='head', lazy='dynamic')
 
@@ -196,7 +199,6 @@ class Threadmessage(db.Model):
     y = db.Column(db.Float)
     body = db.Column(db.String(100), nullable=False)
     sendtime = db.Column(db.DateTime, default=datetime.utcnow)
-
 
     def __repr__(self):
         """Provide helpful representation when printed."""
@@ -247,6 +249,38 @@ class Blocks(db.Model):
 
     def to_dict(self, ):
         return {"north": self.north, "south": self.south, "east": self.east, "west": self.west, "name": self.blockname}
+
+
+class Blockapply(db.Model):
+    """Connection between two users to establish a friendship and can see each other's info."""
+
+    __tablename__ = "blocksapply"
+    id = db.Column(db.Integer, autoincrement=True, primary_key=True)
+    blockid = db.Column(db.Integer, db.ForeignKey('blocks.connection_id'), nullable=False)
+    applicant = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    count = db.Column(db.Integer, default=0)
+
+    # accepter = db.Column(db.Integer, nullable=False)
+
+    def __repr__(self):
+        """Provide helpful representation when printed."""
+
+        return "???"
+
+
+class Blockreveive(db.Model):
+    """Connection between two users to establish a friendship and can see each other's info."""
+
+    __tablename__ = "blockreveive"
+    id = db.Column(db.Integer, autoincrement=True, primary_key=True)
+    blockid = db.Column(db.Integer, db.ForeignKey('blocks.connection_id'), nullable=False)
+    applicant = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    accepter = db.Column(db.Integer, nullable=False)
+
+    def __repr__(self):
+        """Provide helpful representation when printed."""
+
+        return "???"
 
 
 def is_friends_or_pending(user_a_id, user_b_id):
