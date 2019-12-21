@@ -61,6 +61,8 @@
                 {#                    </ul>#}
                 {#                </li>#}
                 {% if current_user.blockid %}
+
+
                     <li role="presentation">
                         <a href="#Blocks" id="blocks-tab" role="tab"
                            data-toggle="tab" aria-controls="blocks" aria-expanded="false">
@@ -75,6 +77,12 @@
                         </a>
                     </li>
                 {% endif %}
+            {% if current_user.hoodid %}
+            <li role="presentation" >
+                        <a href="#Search" id="hoods-tab" role="tab" data-toggle="tab" aria-controls="search"
+                           aria-expanded="true">Search Threads</a>
+                    </li>
+            {% endif %}
             </ul>
             <div class="tab-content">
 
@@ -100,6 +108,24 @@
                             </a>
                         {% endfor %}
                     {% endif %}
+                </div>
+            <div role="tabpanel" class="tab-pane fade " id="Search" aria-labelledby="blocks-tab">
+                   <div class="row">
+            <div class="col-xs-12">
+              <p>
+                Enter Keyword to search
+              </p>
+              <!-- Search engine for users -->
+              <form class="navbar-form navbar-left" role="search" action="{{ url_for('searchthread') }}">
+                <div class="input-group">
+                  <input class="form-control" id="searchbox" type="search" name="q" aria-label="Find Thread" placeholder="???">
+                  <span class="input-group-btn">
+                    <button class="btn btn-default" type="submit"><span class="glyphicon glyphicon-search"></span></button>
+                  </span>
+                </div>
+              </form>
+            </div>
+          </div><!-- /.row -->
                 </div>
 
                 <div role="tabpanel" class="tab-pane fade " id="Blocks-apply" aria-labelledby="blocks-apply-tab">

@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block content %}
+    {% if search_results %}
+                        {% for block in search_results %}
+                            <a href="{{ url_for('threadview',threadid = block.id) }}">
+                                <div class="row">
+                                    {{ block.title }}
+                                </div>
+                            </a>
+                        {% endfor %}
+                    {% endif %}
+{% endblock %}

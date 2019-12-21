@@ -15,14 +15,17 @@ from sqlalchemy_searchable import search
 from app import csrf
 import json
 from datetime import datetime
+from sqlalchemy_searchable import search
+from sqlalchemy import or_
+
 
 # from app.friends import is_friends_or_pending, get_friend_requests, get_friends
-@app.after_request
-@login_required
-def after_quest(response):
-    current_user.last_seen = datetime.utcnow()
-    db.session.commit()
-    return response
+# @app.after_request
+# @login_required
+# def after_quest(response):
+#     current_user.last_seen = datetime.utcnow()
+#     db.session.commit()
+#     return response
 
 @app.route('/test', methods=['GET', 'POST'])
 def test():
@@ -65,7 +68,6 @@ def index():
         reveivelist = [int(item.applicant) for item in blockhavereceive]
         blocklist = [int(item.applicant) for item in blockapply if int(item.applicant) not in reveivelist]
         waitapply = [User.query.filter_by(id=id).one() for id in blocklist]
-
 
     num_wait = 0 if not waitapply else len(waitapply)
     # for hood in hoods:
@@ -148,7 +150,7 @@ def user(username):
     reveive_friends = db.session.query(One2OneMessage).filter(One2OneMessage.user_a_id == user.id,
                                                               One2OneMessage.user_b_id == current_user.id)
     all_message = to_friends.union(reveive_friends)
-    blockapply = db.session.query(Blockapply).filter(Blockapply.applicant==current_user.id).first()
+    blockapply = db.session.query(Blockapply).filter(Blockapply.applicant == current_user.id).first()
     # posts = all_message.order_by(One2OneMessage.sendtime.desc()).paginate(
     #     page, app.config['POSTS_PER_PAGE'], False)
     # next_url = url_for('user', username=user.username, page=posts.next_num) \
@@ -162,7 +164,7 @@ def user(username):
     user_a_id = current_user.id
     user_b_id = user.id
 
-    return render_template('user.html', form=form, user=user, posts=all_message, blockapply = blockapply,
+    return render_template('user.html', form=form, user=user, posts=all_message, blockapply=blockapply,
                            # posts=posts.items, # next_url=next_url, prev_url=prev_url,
                            total_friends=total_friends,
                            friends=friends,
@@ -606,9 +608,11 @@ def accept_block(username):
     """Send a friend request to another user."""
     user = User.query.filter_by(username=username).first()
 
-    tmp = db.session.query(Blockapply).filter(Blockapply.blockid==current_user.blockid, Blockapply.applicant==user.id).first()
+    tmp = db.session.query(Blockapply).filter(Blockapply.blockid == current_user.blockid,
+                                              Blockapply.applicant == user.id).first()
     if tmp.count == 2:
-        rec = db.session.query(Blockreveive).filter(Blockreveive.blockid==current_user.blockid, Blockreveive.applicant==user.id).all()
+        rec = db.session.query(Blockreveive).filter(Blockreveive.blockid == current_user.blockid,
+                                                    Blockreveive.applicant == user.id).all()
         for item in rec:
             db.session.delete(item)
         # db.session.delete(rec)
@@ -648,8 +652,8 @@ def decline_block(username):
 @login_required
 def cancer_blockapp():
     """Send a friend request to another user."""
-    tmp = db.session.query(Blockapply).filter(Blockapply.applicant==current_user.id).first()
-    rec = db.session.query(Blockreveive).filter(Blockreveive.applicant==current_user.id).all()
+    tmp = db.session.query(Blockapply).filter(Blockapply.applicant == current_user.id).first()
+    rec = db.session.query(Blockreveive).filter(Blockreveive.applicant == current_user.id).all()
 
     db.session.delete(tmp)
     for item in rec:
@@ -657,3 +661,19 @@ def cancer_blockapp():
     db.session.commit()
 
     return redirect(url_for('index'))
+
+
+@app.route('/searchthread', methods=["GET"])
+@login_required
+def searchthread():
+    data_input = request.args.get("q")
+    print(data_input)
+    search_results = None
+    # if current_user.hoodid and current_user.blockid:
+    #     search_results = search(db.session.query(MThread).filter(
+    #         or_(MThread.hoodid == current_user.hoodid, MThread.blockid == current_user.blockid)), data_input).all()
+    # else:
+    search_results = search(db.session.query(MThread),
+                            data_input).all()
+
+    return render_template('search.html', search_results=search_results)
